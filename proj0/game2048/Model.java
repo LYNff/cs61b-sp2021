@@ -126,7 +126,7 @@ public class Model extends Observable {
         return changed;
     }
 
-    public  boolean NorthSizeMove(int col) {
+    public boolean NorthSizeMove(int col) {
         boolean haschanged = false;
         boolean[] merged = new boolean[board.size()];
         for (int y = board.size() - 2; y >= 0; y -= 1) {
