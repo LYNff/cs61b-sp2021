@@ -93,5 +93,4 @@ public class Game {
 
     /** True while user is still willing to play. */
     private boolean _playing;
-
 }
