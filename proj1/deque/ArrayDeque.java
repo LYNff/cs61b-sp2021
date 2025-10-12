@@ -46,6 +46,9 @@ public class ArrayDeque<Item> {
     }
 
     public Item removeFirst() {
+        if (isEmpty()) {
+            return null;
+        }
         Item[] a =  (Item[]) new Object[size - 1];
         System.arraycopy(items, 1, a, 0, size - 1);
         Item first = items[0];
@@ -55,6 +58,9 @@ public class ArrayDeque<Item> {
     }
 
     public Item removeLast() {
+        if (isEmpty()) {
+            return null;
+        }
         Item last = items[size - 1];
         size -= 1;
         return last;
