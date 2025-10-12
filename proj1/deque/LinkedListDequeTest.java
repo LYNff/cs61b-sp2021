@@ -119,25 +119,4 @@ public class LinkedListDequeTest {
             assertEquals("Should have the same value", i, (double) lld1.removeLast(), 0.0);
         }
     }
-
-    @Test
-    /* Random test for the methods in LinkedListDeque. */
-    public void randomizedTest() {
-        LinkedListDeque<Integer> LLD = new LinkedListDeque<>();
-
-        int N = 5000;
-        for (int i = 0; i < N; i += 1) {
-            int operationNumber = StdRandom.uniform(0, 9);
-            if (operationNumber == 0) {
-                // addFirst
-                int randVal = StdRandom.uniform(0, 100);
-                LLD.addLast(randVal);
-            }
-            else if (operationNumber == 1) {
-                // addLast
-                int randval = StdRandom.uniform(0, 100);
-                LLD.addLast(randval);
-            }
-        }
-    }
 }

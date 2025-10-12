@@ -38,7 +38,7 @@ public class GuitarString {
         //       are different from each other. It means you should repeatedly call
         //       Math.random() - 0.5 to generate new random numbers for each array index.
         while (!buffer.isEmpty()) {
-            double r = Math.random();
+            double r = Math.random() - 0.5;
             buffer.addLast(r);
         }
     }
@@ -50,7 +50,7 @@ public class GuitarString {
         // TODO: Dequeue the front sample and enqueue a new sample that is
         //       the average of the two multiplied by the DECAY factor.
         //       **Do not call StdAudio.play().**
-        double LastToAdd = 0.5 * (buffer.removeFirst() + buffer.get(1)) * DECAY;
+        double LastToAdd = 0.5 * (buffer.removeFirst() + buffer.get(0)) * DECAY;
         buffer.addLast(LastToAdd);
     }
 
