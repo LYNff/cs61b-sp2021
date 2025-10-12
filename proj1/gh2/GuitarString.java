@@ -4,6 +4,7 @@ package gh2;
 import deque.Deque;
 // TODO: maybe more imports
 import deque.ArrayDeque;
+import deque.LinkedListDeque;
 
 //Note: This file will not compile until you complete the Deque implementations
 public class GuitarString {
@@ -23,7 +24,11 @@ public class GuitarString {
         //       cast the result of this division operation into an int. For
         //       better accuracy, use the Math.round() function before casting.
         //       Your should initially fill your buffer array with zeros.
-        buffer = new ArrayDeque<> ((int) Math.round(SR / frequency));
+        buffer = new LinkedListDeque<>();
+        int capacity = (int) Math.round(SR / frequency);
+        for (int i = 0; i < capacity; i++) {
+            buffer.addFirst(0.0);
+        }
     }
 
 
@@ -38,8 +43,12 @@ public class GuitarString {
         //       are different from each other. It means you should repeatedly call
         //       Math.random() - 0.5 to generate new random numbers for each array index.
         while (!buffer.isEmpty()) {
-            double r = Math.random() - 0.5;
-            buffer.addLast(r);
+            int size = buffer.size();
+            for (int i = 0; i < size; i++) {
+                buffer.removeFirst();
+                double r = Math.random() - 0.5;
+                buffer.addFirst(r);
+            }
         }
     }
 
