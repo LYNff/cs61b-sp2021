@@ -1,5 +1,6 @@
 package deque;
 
+import edu.princeton.cs.algs4.StdRandom;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -8,10 +9,10 @@ import static org.junit.Assert.*;
 public class LinkedListDequeTest {
 
     @Test
-    /** Adds a few things to the list, checking isEmpty() and size() are correct,
-     * finally printing the results.
-     *
-     * && is the "and" operation. */
+    /* Adds a few things to the list, checking isEmpty() and size() are correct,
+      finally printing the results.
+
+      && is the "and" operation. */
     public void addIsEmptySizeTest() {
 
         LinkedListDeque<String> lld1 = new LinkedListDeque<String>();
@@ -116,6 +117,27 @@ public class LinkedListDequeTest {
 
         for (double i = 999999; i > 500000; i--) {
             assertEquals("Should have the same value", i, (double) lld1.removeLast(), 0.0);
+        }
+    }
+
+    @Test
+    /* Random test for the methods in LinkedListDeque. */
+    public void randomizedTest() {
+        LinkedListDeque<Integer> LLD = new LinkedListDeque<>();
+
+        int N = 5000;
+        for (int i = 0; i < N; i += 1) {
+            int operationNumber = StdRandom.uniform(0, 9);
+            if (operationNumber == 0) {
+                // addFirst
+                int randVal = StdRandom.uniform(0, 100);
+                LLD.addLast(randVal);
+            }
+            else if (operationNumber == 1) {
+                // addLast
+                int randval = StdRandom.uniform(0, 100);
+                LLD.addLast(randval);
+            }
         }
     }
 }

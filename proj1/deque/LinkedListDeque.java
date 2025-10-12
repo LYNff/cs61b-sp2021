@@ -1,6 +1,6 @@
 package deque;
 
-public class LinkedListDeque<BleepBlorp> {
+public class LinkedListDeque<BleepBlorp> implements Deque<BleepBlorp>{
     private class IntNode {
         BleepBlorp item;
         IntNode prev;
