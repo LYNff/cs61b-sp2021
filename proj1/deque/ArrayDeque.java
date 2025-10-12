@@ -13,12 +13,18 @@ public class ArrayDeque<Item> implements Deque<Item> {
         size = 0;
     }
 
+    public ArrayDeque(int capacity) {
+        items = (Item[]) new Object[capacity];
+        nextFirst = 2;
+        nextLast = 3;
+        size = 0;
+    }
+
     public void resize(int newSize) {
         Item[] a =  (Item[]) new Object[newSize];
         int first = NextIndex(nextFirst);
-        int last = FrontIndex(nextLast);
-        for (int i = first, j = 0; i != last; i = NextIndex(i), j += 1) {
-            a[j] = items[i];
+        for (int j = 0; j < size; j++) {
+            a[j] = items[(first + j) % items.length];
         }
         nextFirst = newSize - 1;
         nextLast = size;
@@ -31,7 +37,7 @@ public class ArrayDeque<Item> implements Deque<Item> {
     }
     // Helper method to get the front index in range items.length.
     public int FrontIndex(int index) {
-        return (index - 1) % items.length;
+        return (index - 1 + items.length) % items.length;
     }
 
     @Override
@@ -67,8 +73,9 @@ public class ArrayDeque<Item> implements Deque<Item> {
 
     @Override
     public void printDeque() {
+        int first = NextIndex(nextFirst);
         for (int i = 0; i < size; i++) {
-            System.out.print(items[i] + " ");
+            System.out.print(items[(first + i) % items.length] + " ");
         }
         System.out.println();
     }
@@ -78,14 +85,14 @@ public class ArrayDeque<Item> implements Deque<Item> {
         if (isEmpty()) {
             return null;
         }
-        Item First = items[NextIndex(nextFirst)];
-        items[NextIndex(nextFirst)] = null;
         nextFirst = NextIndex(nextFirst);
+        Item first = items[nextFirst];
+        items[nextFirst] = null;
         size -= 1;
         if (items.length >= 16 && size * 4 < items.length) {
-            resize(items.length / 4);
+            resize(items.length / 2);
         }
-        return First;
+        return first;
     }
 
     @Override
@@ -93,12 +100,12 @@ public class ArrayDeque<Item> implements Deque<Item> {
         if (isEmpty()) {
             return null;
         }
-        Item last = items[FrontIndex(nextLast)];
-        items[NextIndex(nextLast)] = null;
-        nextLast = NextIndex(nextLast);
+        nextLast = FrontIndex(nextLast);
+        Item last = items[nextLast];
+        items[nextLast] = null;
         size -= 1;
-        if (items.length >= 16 && size * 4 < items.length) {
-            resize(items.length / 4);
+        if (items.length >= 16 && size < items.length / 4) {
+            resize(items.length / 2);
         }
         return last;
     }
