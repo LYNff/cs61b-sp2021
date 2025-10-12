@@ -20,6 +20,8 @@ public class ArrayDeque<Item> implements Deque<Item> {
         for (int i = first, j = 0; i != last; i = NextIndex(i), j += 1) {
             a[j] = items[i];
         }
+        nextFirst = newSize - 1;
+        nextLast = size;
         items = a;
     }
 
@@ -101,11 +103,14 @@ public class ArrayDeque<Item> implements Deque<Item> {
         return last;
     }
 
-
     @Override
     public Item get(int index) {
-        return items[index];
+        if (index < 0 || index >= size) {
+            return null;
+        }
+        int first = NextIndex(nextFirst);
+        int finalIndex = (first + index) % items.length;
+        return items[finalIndex];
     }
-
 
 }
