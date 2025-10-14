@@ -129,12 +129,20 @@ public class LinkedListDeque<BleepBlorp> implements Deque<BleepBlorp>{
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) { return true; }
-        if (o == null) { return false; }
-        if (o.getClass() != this.getClass()) { return false; }
+        if (this == o) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        if (!(o instanceof Deque)) {
+            return false;
+        }
 
-        LinkedListDeque<BleepBlorp> other = (LinkedListDeque<BleepBlorp>) o;
-        if (other.size() != this.size()) { return false; }
+        Deque other = (Deque) o;
+        if (other.size() != this.size()) {
+            return false;
+        }
         for (int i = 0; i < other.size(); i += 1) {
             if (!other.get(i).equals(this.get(i))) {
                 return false;

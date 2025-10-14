@@ -146,12 +146,22 @@ public class ArrayDeque<Item> implements Deque<Item> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) { return true; }
-        if (o == null) { return false; }
-        if (o.getClass() != this.getClass()) { return false; }
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null) {
+            return false;
+        }
+
+        if (!(o instanceof ArrayDeque)) {
+            return false;
+        }
 
         LinkedListDeque<Item> other = (LinkedListDeque<Item>) o;
-        if (other.size() != this.size()) { return false; }
+        if (other.size() != this.size()) {
+            return false;
+        }
         for (int i = 0; i < other.size(); i += 1) {
             if (!other.get(i).equals(this.get(i))) {
                 return false;
