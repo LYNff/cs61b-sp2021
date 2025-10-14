@@ -1,5 +1,7 @@
 package deque;
 
+import java.util.Iterator;
+
 public class LinkedListDeque<BleepBlorp> implements Deque<BleepBlorp>{
     private class IntNode {
         BleepBlorp item;
@@ -103,6 +105,42 @@ public class LinkedListDeque<BleepBlorp> implements Deque<BleepBlorp>{
             return p.item;
         }
         return getRecursiveHelper(p.next, index - 1);
+    }
+
+    public Iterator<BleepBlorp> iterator() {
+        return new LLDIterator();
+    }
+    private class LLDIterator implements Iterator<BleepBlorp> {
+        int pos;
+        public LLDIterator() {
+            pos = 0;
+        }
+
+        public boolean hasNext() {
+            return pos < size;
+        }
+
+        public BleepBlorp next() {
+            BleepBlorp returnitem = get(pos);
+            pos += 1;
+            return returnitem;
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (o == null) { return false; }
+        if (o.getClass() != this.getClass()) { return false; }
+
+        LinkedListDeque<BleepBlorp> other = (LinkedListDeque<BleepBlorp>) o;
+        if (other.size() != this.size()) { return false; }
+        for (int i = 0; i < other.size(); i += 1) {
+            if (!other.get(i).equals(this.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }

@@ -1,43 +1,42 @@
 package deque;
 
-public class MaxArrayDeque<Item> {
-    ArrayDeque<Item> maxAD;
+import java.util.Comparator;
 
-    public MaxArrayDeque() {
-        maxAD = new ArrayDeque<> ();
+public class MaxArrayDeque<Item> extends ArrayDeque<Item>{
+    private Comparator<Item> cmp;
+
+    public MaxArrayDeque(Comparator<Item> c) {
+        super();
+        cmp = c;
+   }
+
+    public Item max() {
+        if (isEmpty()) {
+            return null;
+        }
+        int index = NextIndex(nextFirst);
+        Item maxItem = items[index];
+        for (int i = 0; i < size; i += 1) {
+            if (cmp.compare(items[index], maxItem) > 0) {
+                maxItem = items[index];
+            }
+            index = NextIndex(index);
+        }
+        return maxItem;
     }
 
-    public void addFirst(Item item) {
-        maxAD.addFirst(item);
+    public Item max(Comparator<Item> c) {
+        if (isEmpty()) {
+            return null;
+        }
+        int index = NextIndex(nextFirst);
+        Item maxItem = items[index];
+        for (int i = 0; i < size; i += 1) {
+            if (c.compare(items[index], maxItem) > 0) {
+                maxItem = items[index];
+            }
+            index = NextIndex(index);
+        }
+        return maxItem;
     }
-
-    public void addLast(Item item) {
-        maxAD.addLast(item);
-    }
-
-    public boolean isEmpty() {
-        return maxAD.isEmpty();
-    }
-
-    public int size() {
-        return maxAD.size();
-    }
-
-    public void printDeque() {
-        maxAD.printDeque();
-    }
-
-    public Item removeFirst() {
-        return maxAD.removeFirst();
-    }
-
-    public Item removeLast() {
-        return maxAD.removeLast();
-    }
-
-    public Item get(int index) {
-        return maxAD.get(index);
-    }
-
-
 }
