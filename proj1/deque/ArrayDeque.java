@@ -127,7 +127,7 @@ public class ArrayDeque<Item> implements Deque<Item>, Iterable<Item> {
     }
 
     private class ArrayIterator implements Iterator<Item> {
-        int pos;
+        private int pos;
 
         public ArrayIterator() {
             pos = 0;
@@ -138,7 +138,7 @@ public class ArrayDeque<Item> implements Deque<Item>, Iterable<Item> {
         }
 
         public Item next() {
-            Item returnItem = items[pos];
+            Item returnItem = get(pos);
             pos += 1;
             return returnItem;
         }
@@ -154,7 +154,7 @@ public class ArrayDeque<Item> implements Deque<Item>, Iterable<Item> {
             return false;
         }
 
-        if (!(o instanceof ArrayDeque)) {
+        if (!(o instanceof Deque)) {
             return false;
         }
 
