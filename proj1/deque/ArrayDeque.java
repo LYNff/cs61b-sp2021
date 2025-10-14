@@ -2,11 +2,11 @@ package deque;
 
 import java.util.Iterator;
 
-public class ArrayDeque<Item> implements Deque<Item> {
-    Item[] items;
-    int nextFirst;
-    int nextLast;
-    int size;
+public class ArrayDeque<Item> implements Deque<Item>, Iterable<Item> {
+    private Item[] items;
+    private int nextFirst;
+    private int nextLast;
+    private int size;
 
     public ArrayDeque() {
         items = (Item[]) new Object[8];
@@ -158,7 +158,7 @@ public class ArrayDeque<Item> implements Deque<Item> {
             return false;
         }
 
-        LinkedListDeque<Item> other = (LinkedListDeque<Item>) o;
+        Deque<Item> other = (Deque<Item>) o;
         if (other.size() != this.size()) {
             return false;
         }

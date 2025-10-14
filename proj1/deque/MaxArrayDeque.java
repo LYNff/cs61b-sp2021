@@ -14,29 +14,26 @@ public class MaxArrayDeque<Item> extends ArrayDeque<Item>{
         if (isEmpty()) {
             return null;
         }
-        int index = NextIndex(nextFirst);
-        Item maxItem = items[index];
-        for (int i = 0; i < size; i += 1) {
-            if (cmp.compare(items[index], maxItem) > 0) {
-                maxItem = items[index];
+        Item maxVal = get(0);
+        for (int i = 1; i < size(); i += 1) {
+            if (cmp.compare(maxVal, get(i)) < 0) {
+                maxVal = get(i);
             }
-            index = NextIndex(index);
         }
-        return maxItem;
+        return maxVal;
     }
 
     public Item max(Comparator<Item> c) {
         if (isEmpty()) {
             return null;
         }
-        int index = NextIndex(nextFirst);
-        Item maxItem = items[index];
-        for (int i = 0; i < size; i += 1) {
-            if (c.compare(items[index], maxItem) > 0) {
-                maxItem = items[index];
+        Item maxVal = get(0);
+        for (int i = 1; i < size(); i += 1) {
+            if (c.compare(maxVal, get(i)) < 0) {
+                maxVal = get(i);
             }
-            index = NextIndex(index);
         }
-        return maxItem;
+        return maxVal;
+
     }
 }

@@ -2,7 +2,7 @@ package deque;
 
 import java.util.Iterator;
 
-public class LinkedListDeque<BleepBlorp> implements Deque<BleepBlorp>{
+public class LinkedListDeque<BleepBlorp> implements Deque<BleepBlorp>, Iterable<BleepBlorp> {
     private class IntNode {
         BleepBlorp item;
         IntNode prev;
@@ -139,7 +139,7 @@ public class LinkedListDeque<BleepBlorp> implements Deque<BleepBlorp>{
             return false;
         }
 
-        Deque other = (Deque) o;
+        Deque<BleepBlorp> other = (Deque<BleepBlorp>) o;
         if (other.size() != this.size()) {
             return false;
         }

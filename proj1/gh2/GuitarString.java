@@ -42,13 +42,11 @@ public class GuitarString {
         //       other. This does not mean that you need to check that the numbers
         //       are different from each other. It means you should repeatedly call
         //       Math.random() - 0.5 to generate new random numbers for each array index.
-        while (!buffer.isEmpty()) {
-            int size = buffer.size();
-            for (int i = 0; i < size; i++) {
-                buffer.removeFirst();
-                double r = Math.random() - 0.5;
-                buffer.addFirst(r);
-            }
+        int size = buffer.size();
+        for (int i = 0; i < size; i++) {
+            buffer.removeFirst();
+            double r = Math.random() - 0.5;
+            buffer.addFirst(r);
         }
     }
 
