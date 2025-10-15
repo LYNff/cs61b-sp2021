@@ -17,14 +17,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         size = 0;
     }
 
-    public ArrayDeque(int capacity) {
-        items = (T[]) new Object[capacity];
-        nextFirst = 2;
-        nextLast = 3;
-        size = 0;
-    }
-
-    public void resize(int newSize) {
+    private void resize(int newSize) {
         T[] a =  (T[]) new Object[newSize];
         int first = nextIndex(nextFirst);
         for (int j = 0; j < size; j++) {
@@ -36,11 +29,11 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     }
 
     // Helper method to get the next index in range items.length.
-    public int nextIndex(int index) {
+    private int nextIndex(int index) {
         return (index + 1) % items.length;
     }
     // Helper method to get the front index in range items.length.
-    public int frontIndex(int index) {
+    private int frontIndex(int index) {
         return (index - 1 + items.length) % items.length;
     }
 
@@ -131,7 +124,7 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     private class ArrayIterator implements Iterator<T> {
         private int pos;
 
-        public ArrayIterator() {
+        ArrayIterator() {
             pos = 0;
         }
 
