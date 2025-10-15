@@ -2,20 +2,20 @@ package deque;
 
 import java.util.Iterator;
 
-public class LinkedListDeque<BleepBlorp> implements Deque<BleepBlorp>, Iterable<BleepBlorp> {
+public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
     private class IntNode {
-        BleepBlorp item;
+        T item;
         IntNode prev;
         IntNode next;
 
-        public IntNode(BleepBlorp i, IntNode p, IntNode n) {
+        public IntNode(T i, IntNode p, IntNode n) {
             item = i;
             prev = p;
             next = n;
         }
     }
 
-    public IntNode sentinel;
+    private IntNode sentinel;
     private int size;
 
     public LinkedListDeque() {
@@ -25,14 +25,14 @@ public class LinkedListDeque<BleepBlorp> implements Deque<BleepBlorp>, Iterable<
         size = 0;
     }
 
-    public void addFirst(BleepBlorp x) {
+    public void addFirst(T x) {
         IntNode firstNode = new IntNode(x, sentinel, sentinel.next);
         sentinel.next.prev = firstNode;
         sentinel.next = firstNode;
         size += 1;
     }
 
-    public void addLast(BleepBlorp x) {
+    public void addLast(T x) {
         IntNode lastNode = new IntNode(x, sentinel.prev, sentinel);
         sentinel.prev.next = lastNode;
         sentinel.prev = lastNode;
@@ -57,8 +57,8 @@ public class LinkedListDeque<BleepBlorp> implements Deque<BleepBlorp>, Iterable<
         System.out.println();
     }
 
-    public BleepBlorp removeFirst() {
-        if(!isEmpty()) {
+    public T removeFirst() {
+        if (!isEmpty()) {
             IntNode p = sentinel.next;
             sentinel.next = p.next;
             p.next.prev = sentinel;
@@ -68,8 +68,8 @@ public class LinkedListDeque<BleepBlorp> implements Deque<BleepBlorp>, Iterable<
         return null;
     }
 
-    public BleepBlorp removeLast() {
-        if(!isEmpty()) {
+    public T removeLast() {
+        if (!isEmpty()) {
             IntNode p = sentinel.prev;
             sentinel.prev = p.prev;
             p.prev.next = sentinel;
@@ -79,7 +79,7 @@ public class LinkedListDeque<BleepBlorp> implements Deque<BleepBlorp>, Iterable<
         return null;
     }
 
-    public BleepBlorp get(int index) {
+    public T get(int index) {
         IntNode p = sentinel;
         for (int i = 0; i < size; i++) {
             if (i == index) {
@@ -90,14 +90,14 @@ public class LinkedListDeque<BleepBlorp> implements Deque<BleepBlorp>, Iterable<
         return null;
     }
 
-    public BleepBlorp getRecursive(int index) {
+    public T getRecursive(int index) {
         if (index >= size || index < 0) {
             return null;
         }
         return getRecursiveHelper(sentinel.next, index);
     }
     // Helper method to implement Recursive method.
-    public BleepBlorp getRecursiveHelper(IntNode p, int index) {
+    public T getRecursiveHelper(IntNode p, int index) {
         if (p == sentinel) {
             return null;
         }
@@ -107,10 +107,10 @@ public class LinkedListDeque<BleepBlorp> implements Deque<BleepBlorp>, Iterable<
         return getRecursiveHelper(p.next, index - 1);
     }
 
-    public Iterator<BleepBlorp> iterator() {
+    public Iterator<T> iterator() {
         return new LLDIterator();
     }
-    private class LLDIterator implements Iterator<BleepBlorp> {
+    private class LLDIterator implements Iterator<T> {
         int pos;
         public LLDIterator() {
             pos = 0;
@@ -120,8 +120,8 @@ public class LinkedListDeque<BleepBlorp> implements Deque<BleepBlorp>, Iterable<
             return pos < size;
         }
 
-        public BleepBlorp next() {
-            BleepBlorp returnitem = get(pos);
+        public T next() {
+            T returnitem = get(pos);
             pos += 1;
             return returnitem;
         }
@@ -139,7 +139,7 @@ public class LinkedListDeque<BleepBlorp> implements Deque<BleepBlorp>, Iterable<
             return false;
         }
 
-        Deque<BleepBlorp> other = (Deque<BleepBlorp>) o;
+        Deque<T> other = (Deque<T>) o;
         if (other.size() != this.size()) {
             return false;
         }
