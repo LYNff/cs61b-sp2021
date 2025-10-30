@@ -21,6 +21,28 @@ public class Commit {
 
     /** The message of this Commit. */
     private String message;
+    private String timestamp;
+    private Commit parent;
 
     /* TODO: fill in the rest of this class. */
+    public Commit() {
+        message = "initial commit";
+        timestamp = "00:00:00 UTC, Thursday, 1 January 1970";
+        parent = null;
+    }
+
+    public void setMessage(String m) {
+        message = m;
+    }
+    public void setTimestamp() {
+        timestamp = new Date().toString();
+    }
+    public void setParent(Commit p) {
+        parent = p;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
 }
