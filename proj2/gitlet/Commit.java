@@ -44,5 +44,8 @@ public class Commit {
     public String getMessage() {
         return message;
     }
+    public String getTimestamp() {
+        return timestamp;
+    }
 
 }

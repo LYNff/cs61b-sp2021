@@ -59,6 +59,10 @@ public class Repository {
             return;
         }
         initFinished = true;
+        File f = new File(GITLET_COMMITS_DIR, "commit0.txt");
+        f.createNewFile();
         Commit commit0 = new Commit();
+        Utils.writeContents(f, commit0.getMessage(), commit0.getTimestamp());
+        
     }
 }
