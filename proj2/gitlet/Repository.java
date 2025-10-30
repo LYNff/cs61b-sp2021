@@ -30,7 +30,11 @@ public class Repository {
     public static final File GITLET_DIR = join(CWD, ".gitlet");
     public static final File GITLET_STAGING_AREA_DIR = join(GITLET_DIR, "staging-areas");
     public static final File GITLET_COMMITS_DIR = join(GITLET_DIR, "commits");
+
     public static final File GITLET_BLOBS_DIR = join(GITLET_DIR, "blobs");
+
+    // Track the file by its SHA1 saved in the HEAD directory.
+    public static final File GITLET_HEAD_DIR = join(GITLET_DIR, "HEAD");
 
     /* TODO: fill in the rest of this class. */
 
@@ -53,16 +57,45 @@ public class Repository {
         }
     }
 
+    // Create the branch pointer.
+    private static class Branch {
+        String name;
+        Commit commit;
+
+        public Branch(String name, Commit commit) {
+            this.name = name;
+            this.commit = commit;
+        }
+
+    }
+
+    // Create the HEAD pointer.
+    private static class HEAD {
+        Commit commit;
+        public HEAD(Commit commit) {
+            this.commit = commit;
+        }
+    }
+
+
     public static void makeInit() throws IOException {
         if (initFinished) {
             System.out.println("A Gitlet version-control system already exists in the current directory.");
             return;
         }
         initFinished = true;
-        File f = new File(GITLET_COMMITS_DIR, "commit0.txt");
-        f.createNewFile();
-        Commit commit0 = new Commit();
-        Utils.writeContents(f, commit0.getMessage(), commit0.getTimestamp());
-        
+        Commit commit = new Commit();
+        Branch master = new Branch("master", commit);
+        HEAD head = new HEAD(commit);
+    }
+
+    public static void commit() {
+        // Read from my computer the head commit object and the staging area.
+
+        // Clone the head commit.
+        // Modify its message and timestamp according to user input.
+        // Use the staging area in order to modify the file tracked by the new commit.
+
+        // Write back any new object made or any modified object read earlier.
     }
 }
