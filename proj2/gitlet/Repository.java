@@ -114,6 +114,10 @@ public class Repository {
         if (!addtion.exists()) {
             addtion.mkdir();
         }
+        File blobarea = new File(GITLET_BLOBS_DIR, "blobs");
+        if (!blobarea.exists()) {
+            blobarea.mkdir();
+        }
 
         // Failure cases
         if (!f.exists()) {
@@ -150,6 +154,12 @@ public class Repository {
         // Add the file to the staging ara.
         addStage.createNewFile();
         Utils.writeContents(addStage, blob2);
+        
+        // Add the content of the file to the blobs.
+        File blobToadd = new File(GITLET_BLOBS_DIR, blob2);
+        blobToadd.createNewFile();
+        Utils.writeContents(blobToadd, text);
+
         // If in the removal area, remove it from the area.
         File removestage = new File(STAGING_FOR_REMOVAL, f.getName());
         if (removestage.exists()) {
