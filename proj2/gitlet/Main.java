@@ -39,6 +39,10 @@ public class Main {
                 validateNumArgs("commit", args, 2);
                 Repository.commit(args[1]);
                 break;
+            case "log":
+                validateNumArgs("rm", args, 1);
+                Repository.log();
+                break;
         }
     }
     public static void validateNumArgs(String cmd, String[] args, int n) {
@@ -46,14 +50,6 @@ public class Main {
             System.out.println("Incorrect operands.");
             System.exit(0);
         }
-    }
-    public static boolean isInitialized() {
-        File CWD = new File(System.getProperty("user.dir"));
-        File file = new File(CWD, ".gitlet");
-        if (file.exists()) {
-            return true;
-        }
-        return false;
     }
 
 }

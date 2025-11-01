@@ -21,11 +21,6 @@ public class Commit implements Serializable {
      * variable is used. We've provided one example for `message`.
      */
 
-    /** Folder that commits live in. */
-    static final File GITLET_COMMITS_FOLDER = Utils.join(".gitlet", "commits");
-    // Folder that blobs live in.
-    static final File GITLET_BLOBS_FOLDER = Utils.join(".gitlet", "blobd");
-
     /** The message of this Commit. */
     private String message;
     private Date timestamp;
@@ -67,14 +62,7 @@ public class Commit implements Serializable {
     public void setParent(String parent) {
         this.parent = parent;
     }
-    // Read commit information from the commit file which head points at.
-    public static Commit readFromfile(String sha1) {
-        Commit headPointer;
-        File f = new File(GITLET_COMMITS_FOLDER, sha1);
 
-        headPointer = Utils.readObject(f, Commit.class);
-        return headPointer;
-    }
     public static Commit cloneCommit(Commit headPointer, String message) {
         Commit clone = new Commit();
         clone.message = message;
@@ -82,5 +70,4 @@ public class Commit implements Serializable {
         clone.fileSet = headPointer.fileSet;
         return clone;
     }
-
 }

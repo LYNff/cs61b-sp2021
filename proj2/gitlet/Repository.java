@@ -2,10 +2,11 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Stack;
 
+import static gitlet.GitletConstants.*;
+import static gitlet.CommitFromFile.*;
 import static gitlet.Utils.*;
 
 // TODO: any imports you need here
@@ -25,18 +26,6 @@ public class Repository {
      * variable is used. We've provided two examples for you.
      */
 
-    /** The current working directory. */
-    public static final File CWD = new File(System.getProperty("user.dir"));
-    /** The .gitlet directory. */
-    public static final File GITLET_DIR = join(CWD, ".gitlet");
-    public static final File GITLET_STAGING_AREA_DIR = join(GITLET_DIR, "index");
-    public static final File STAGING_FOR_ADDTION =  join(GITLET_STAGING_AREA_DIR, "addition");
-    public static final File STAGING_FOR_REMOVAL = join(GITLET_STAGING_AREA_DIR, "remove");
-
-    public static final File GITLET_COMMITS_DIR = join(GITLET_DIR, "commits");
-    public static final File GITLET_BLOBS_DIR = join(GITLET_DIR, "blobs");
-
-    public static final File GITLET_HEAD_DIR = join(GITLET_DIR, "refs/heads");
     /* TODO: fill in the rest of this class. */
 
     /** Create the .gitlet dictionary.
@@ -112,10 +101,10 @@ public class Repository {
     public static void add(File f) throws IOException {
         /**
          *  TODO: Create a staging area for addition directory./
-         *  TODO: Verify if the file is identical to the file in the current commit.
-         *  TODO: remove the file from the staging area if exits while identical.
-         *  TODO: If not add it to the staging area.
-         *  TODO: If the file in the removal area, change it from removal to addition.
+         *  TODO: Verify if the file is identical to the file in the current commit./
+         *  TODO: remove the file from the staging area if exits while identical./
+         *  TODO: If not add it to the staging area./
+         *  TODO: If the file in the removal area, change it from removal to addition./
          *  TODO: something If the file does not exist./
          *
          */
@@ -132,35 +121,42 @@ public class Repository {
             System.exit(0);
         }
         // Step2
-        // TODO: How to get the current commit?
         // Use HEAD pointer.
-        File c = getHeadcommit();
-        Commit head = Commit.readFromfile(Utils.readContentsAsString(c));
+        File c = getHeadcommitFile();
+        Commit head = CommitFromFile.readFromfile(Utils.readContentsAsString(c));
         HashMap<String, String> fileSet = head.getFileset();
 
         // Create a file by the name of the f to add.
         File addStage = new File(STAGING_FOR_ADDTION, f.getName());
 
+        // The blob of the file wants to add.
+        String text = Utils.readContentsAsString(f);
+        String blob2 = Utils.sha1(text);
+
         // f exists in the current commit.
         if (fileSet.containsKey(f.getName())) {
             // The blob of the file in the current commit.
             String blob1 = fileSet.get(f.getName());
-            // The blob of the file wants to add.
-            String text = Utils.readContentsAsString(f);
-            String blob2 = Utils.sha1(text);
+
             // If SHA-1 of the blob is identical, then the two file is identical.
             if (blob1.equals(blob2)) {
+                // If the file exists in the staging area, remove it.
+                if (addStage.exists()) {
+                    Utils.restrictedDelete(addStage);
+                }
                 System.exit(0);
             }
-            addStage.createNewFile();
+        }
+        // Add the file to the staging ara.
+        addStage.createNewFile();
+        Utils.writeContents(addStage, blob2);
+        // If in the removal area, remove it from the area.
+        File removestage = new File(STAGING_FOR_REMOVAL, f.getName());
+        if (removestage.exists()) {
+            Utils.restrictedDelete(removestage);
         }
     }
-    // Return the file whose content is the sha1 of the commit that head pointer point at.
-    private static File getHeadcommit() {
-        File branchPath = new File(GITLET_DIR, "HEAD");
-        String branchName = Utils.readContentsAsString(branchPath);
-        return new File(GITLET_HEAD_DIR, branchName);
-    }
+
 
     public static void commit(String message) throws IOException {
         /**
@@ -169,11 +165,11 @@ public class Repository {
          * TODO: Save and start tracking any files that were staged for addition but weren't tracked by its parent./
          * TODO: Change the head pointer points to the new commit./
          * TODO: Clear the staging area after a commit./
-         * TODO: If no files have been staged.
+         * TODO: If no files have been staged./
          */
         // Read from my computer the head commit object and the staging area.
-        File c = getHeadcommit();
-        Commit head = Commit.readFromfile(Utils.readContentsAsString(c));
+        File c = getHeadcommitFile();
+        Commit head = CommitFromFile.readFromfile(Utils.readContentsAsString(c));
         HashMap<String, String> fileSet = head.getFileset();
 
         File addStage = new File(STAGING_FOR_ADDTION.toString());
@@ -195,17 +191,32 @@ public class Repository {
             Utils.restrictedDelete(file);
         }
         // Save the new commit node to the commit tree.
-        // TODO: Need the change.
-        String commitSha1 = Utils.sha1(newCommit);
+        String commitSha1 = Utils.sha1(serialize(newCommit));
         newCommit.setName(commitSha1);
 
         File commitTosave = new File(GITLET_COMMITS_DIR, commitSha1);
         commitTosave.createNewFile();
         Utils.writeObject(commitTosave, newCommit);
         // Change the head pointer.
-        File headpointer = getHeadcommit();
+        File headpointer = getHeadcommitFile();
         Utils.writeContents(headpointer, commitSha1);
 
         // Write back any new object made or any modified object read earlier.
     }
+
+    public static void log() throws IOException {
+        /**
+         *  TODO: Display information about each commit backwards along the commit tree until the initial commit.
+         *  TODO: Follow the first parent commit links
+         *  TODO: Ignore any second parents found in merge commits.
+         */
+        Stack<Commit> stack = commitStack();
+        StringBuilder texts = new StringBuilder();
+        for (Commit commit : stack) {
+            String text = String.format("===\ncommit %s\nDate: %s\n%s\n", commit.getName(), commit.getTimeStamp().toString(), commit.getMessage());
+            texts.append(text);
+        }
+        System.out.println(texts);
+    }
+
 }
