@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.List;
 
 import static gitlet.Utils.*;
 
@@ -81,7 +82,8 @@ public class Repository {
 
         // Step2
         Commit commit = new Commit();
-        String sha1 = Utils.sha1(commit.getObjects());
+        List<String> list = commit.getObjects();
+        String sha1 = Utils.sha1(list);
         commit.setName(sha1);
         // Use sha-1 to represent the commit and save it in the commits directory.
         File commits = new File(GITLET_DIR, "commits");
