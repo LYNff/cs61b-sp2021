@@ -4,8 +4,10 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date; // TODO: You'll likely use this in this class
 import java.util.HashMap;
+import java.util.List;
 
 /** Represents a gitlet commit object.
  *  TODO: It's a good idea to give a description here of what else this Class
@@ -78,4 +80,12 @@ public class Commit implements Serializable {
         return clone;
     }
 
+    public List<Object> getObjects() {
+        List<Object> list = new ArrayList <>();
+        list.add(this.name);
+        list.add(this.message);
+        list.add(this.timestamp.toString());
+        list.add(this.parent);
+        return list;
+    }
 }

@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashMap;
 
 import static gitlet.Utils.*;
@@ -30,8 +31,8 @@ public class Repository {
     public static final File GITLET_STAGING_AREA_DIR = join(GITLET_DIR, "index");
     public static final File STAGING_FOR_ADDTION =  join(GITLET_STAGING_AREA_DIR, "addition");
     public static final File STAGING_FOR_REMOVAL = join(GITLET_STAGING_AREA_DIR, "remove");
-    public static final File GITLET_COMMITS_DIR = join(GITLET_DIR, "commits");
 
+    public static final File GITLET_COMMITS_DIR = join(GITLET_DIR, "commits");
     public static final File GITLET_BLOBS_DIR = join(GITLET_DIR, "blobs");
 
     public static final File GITLET_HEAD_DIR = join(GITLET_DIR, "refs/heads");
@@ -52,6 +53,8 @@ public class Repository {
         }
     }
 
+    /* TODO: Distinguish somehow between hashes for commits and hashes for blobs. */
+
     public static void makeInit() throws IOException {
         /**
          *  TODO: Create a new Gitlet version-control system in the current directory./
@@ -61,11 +64,11 @@ public class Repository {
          *
          *  .gitlet
          *      - commits/
+         *      - blobs/
          *      - refs/
          *      - index/ ------ staging area
          *      - HEAD
          */
-
 
         // Step1
         File gitlet = new File(CWD, ".gitlet");
@@ -78,7 +81,7 @@ public class Repository {
 
         // Step2
         Commit commit = new Commit();
-        String sha1 = Utils.sha1(commit);
+        String sha1 = Utils.sha1(commit.getObjects());
         commit.setName(sha1);
         // Use sha-1 to represent the commit and save it in the commits directory.
         File commits = new File(GITLET_DIR, "commits");
@@ -107,13 +110,14 @@ public class Repository {
     public static void add(File f) throws IOException {
         /**
          *  TODO: Create a staging area for addition directory./
-         *  TODO: Verify if the file is identical to the file in the current commit./
-         *  TODO: remove the file from the staging area if exits while identical./
+         *  TODO: Verify if the file is identical to the file in the current commit.
+         *  TODO: remove the file from the staging area if exits while identical.
          *  TODO: If not add it to the staging area.
          *  TODO: If the file in the removal area, change it from removal to addition.
          *  TODO: something If the file does not exist./
          *
          */
+
         // Step1
         File addtion = new File(GITLET_STAGING_AREA_DIR, "addition");
         if (!addtion.exists()) {
@@ -137,18 +141,10 @@ public class Repository {
 
         // f exists in the current commit.
         if (fileSet.containsKey(f.getName())) {
-            String text1 = Utils.readContentsAsString(f);
-            // Find the content of the file in the current commit from blob.
             File blob1 = new File(GITLET_BLOBS_DIR, fileSet.get(f.getName()));
-            String text2 = Utils.readContentsAsString(blob1);
             // Verify if the content is identical.
-            if (text1.equals(text2)) {
-                // If it is already in the stage area.
-                if (addStage.exists()) {
-                    addStage.delete();
-                }
-                System.exit(0);
-            }
+            // If SHA-1 is identical, then the two file is identical.
+
             addStage.createNewFile();
         }
     }
@@ -189,7 +185,7 @@ public class Repository {
             // Put the file in the stage area into Commit.
             fileSet.put(file.getName(), Utils.readContentsAsString(file));
             // Clear the file after commit.
-            file.delete();
+            Files.delete(file.toPath());
         }
         // Save the new commit node to the commit tree.
         String commitSha1 = Utils.sha1(newCommit);
