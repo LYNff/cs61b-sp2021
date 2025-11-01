@@ -134,7 +134,7 @@ public class Repository {
         String blob2 = Utils.sha1(text);
 
         // f exists in the current commit.
-        if (fileSet.containsKey(f.getName())) {
+        if (fileSet != null && fileSet.containsKey(f.getName())) {
             // The blob of the file in the current commit.
             String blob1 = fileSet.get(f.getName());
 
