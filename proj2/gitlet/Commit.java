@@ -82,8 +82,10 @@ public class Commit implements Serializable {
         list.add(this.name);
         list.add(this.message);
         list.add(this.parent);
-        Set<String> hashSet = fileSet.keySet();
-        list.addAll(hashSet);
+        if (fileSet != null) {
+            Set<String> hashSet = fileSet.keySet();
+            list.addAll(hashSet);
+        }
         return list;
     }
 }
