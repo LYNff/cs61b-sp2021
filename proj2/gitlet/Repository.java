@@ -82,8 +82,8 @@ public class Repository {
 
         // Step2
         Commit commit = new Commit();
-        List<String> list = commit.getObjects();
-        String sha1 = Utils.sha1(list);
+        // TODO: how to use the object of the commit to create a sha-1 to represent this commit.
+        String sha1 = Utils.sha1(commit.getObjects());
         commit.setName(sha1);
         // Use sha-1 to represent the commit and save it in the commits directory.
         File commits = new File(GITLET_DIR, "commits");
@@ -143,10 +143,15 @@ public class Repository {
 
         // f exists in the current commit.
         if (fileSet.containsKey(f.getName())) {
-            File blob1 = new File(GITLET_BLOBS_DIR, fileSet.get(f.getName()));
-            // Verify if the content is identical.
-            // If SHA-1 is identical, then the two file is identical.
-
+            // The blob of the file in the current commit.
+            String blob1 = fileSet.get(f.getName());
+            // The blob of the file wants to add.
+            String text = Utils.readContentsAsString(f);
+            String blob2 = Utils.sha1(text);
+            // If SHA-1 of the blob is identical, then the two file is identical.
+            if (blob1.equals(blob2)) {
+                System.exit(0);
+            }
             addStage.createNewFile();
         }
     }
@@ -186,10 +191,11 @@ public class Repository {
         for (File file : files) {
             // Put the file in the stage area into Commit.
             fileSet.put(file.getName(), Utils.readContentsAsString(file));
-            // Clear the file after commit.
-            Files.delete(file.toPath());
+            // Delete the file after commit.
+            Utils.restrictedDelete(file);
         }
         // Save the new commit node to the commit tree.
+        // TODO: Need the change.
         String commitSha1 = Utils.sha1(newCommit);
         newCommit.setName(commitSha1);
 

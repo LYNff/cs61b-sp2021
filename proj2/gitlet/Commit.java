@@ -23,6 +23,9 @@ public class Commit implements Serializable {
 
     /** Folder that commits live in. */
     static final File GITLET_COMMITS_FOLDER = Utils.join(".gitlet", "commits");
+    // Folder that blobs live in.
+    static final File GITLET_BLOBS_FOLDER = Utils.join(".gitlet", "blobd");
+
     /** The message of this Commit. */
     private String message;
     private Date timestamp;
@@ -77,8 +80,8 @@ public class Commit implements Serializable {
         return clone;
     }
 
-    public List<String> getObjects() {
-        List<String> list = new ArrayList <>();
+    public List<Object> getObjects() {
+        List<Object> list = new ArrayList <>();
         list.add(this.name);
         list.add(this.message);
         list.add(this.parent);
