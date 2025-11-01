@@ -2,8 +2,10 @@ package gitlet;
 
 // TODO: any imports you need here
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.Date; // TODO: You'll likely use this in this class
+import java.util.HashMap;
 
 /** Represents a gitlet commit object.
  *  TODO: It's a good idea to give a description here of what else this Class
@@ -20,22 +22,60 @@ public class Commit implements Serializable {
      * variable is used. We've provided one example for `message`.
      */
 
+    /** Folder that commits live in. */
+    static final File GITLET_COMMITS_FOLDER = Utils.join(".gitlet", "commits");
     /** The message of this Commit. */
     private String message;
-    private String timestamp;
+    private Date timestamp;
     private String parent;
+    // Use hashmap to express the file in this snapshot.
+    private HashMap<String, String> fileSet;
+    // Remember the sha1-name of the commit node.
+    private String name;
 
     /* TODO: fill in the rest of this class. */
     public Commit() {
         message = "initial commit";
-        timestamp = "00:00:00 UTC, Thursday, 1 January 1970";
+        timestamp = new Date(0); // TODO: verify this is the epoch data.
         parent = null;
+        fileSet = null;
+        name = null;
     }
 
-    public Commit(String message, String parent) {
-        this.message = message;
-        this.timestamp = new Date().toString();
+    // Get objects from Commit.
+    public String getMessage() {
+        return message;
+    }
+    public Date getTimeStamp() {
+        return timestamp;
+    }
+    public HashMap<String, String> getFileset() {
+        return fileSet;
+    }
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+    public void setParent(String parent) {
         this.parent = parent;
+    }
+    // Read commit information from the commit file which head points at.
+    public static Commit readFromfile(String sha1) {
+        Commit headPointer;
+        File f = new File(GITLET_COMMITS_FOLDER, sha1);
+
+        headPointer = Utils.readObject(f, Commit.class);
+        return headPointer;
+    }
+    public static Commit cloneCommit(Commit headPointer, String message) {
+        Commit clone = new Commit();
+        clone.message = message;
+        clone.timestamp = new Date();
+        clone.fileSet = headPointer.fileSet;
+        return clone;
     }
 
 }

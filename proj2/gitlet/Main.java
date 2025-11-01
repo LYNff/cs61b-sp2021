@@ -1,5 +1,6 @@
 package gitlet;
 
+import java.io.File;
 import java.io.IOException;
 
 /** Driver class for Gitlet, a subset of the Git version-control system.
@@ -21,13 +22,23 @@ public class Main {
             case "init":
                 // TODO: handle the `init` command
                 validateNumArgs("init", args, 1);
-                Repository.setupPersistence();
                 Repository.makeInit();
                 break;
             case "add":
                 // TODO: handle the `add [filename]` command
+                if (args.length == 1) {
+                    System.out.println("Please enter a commit message.");
+                    System.exit(0);
+                }
+                validateNumArgs("add", args, 2);
+                File f = new File(args[1]);
+                Repository.add(f);
                 break;
             // TODO: FILL THE REST IN
+            case "commit":
+                validateNumArgs("commit", args, 2);
+                Repository.commit(args[1]);
+                break;
         }
     }
     public static void validateNumArgs(String cmd, String[] args, int n) {
@@ -35,6 +46,14 @@ public class Main {
             System.out.println("Incorrect operands.");
             System.exit(0);
         }
+    }
+    public static boolean isInitialized() {
+        File CWD = new File(System.getProperty("user.dir"));
+        File file = new File(CWD, ".gitlet");
+        if (file.exists()) {
+            return true;
+        }
+        return false;
     }
 
 }
