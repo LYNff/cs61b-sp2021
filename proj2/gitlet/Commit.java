@@ -80,8 +80,8 @@ public class Commit implements Serializable {
         return clone;
     }
 
-    public List<Object> getObjects() {
-        List<Object> list = new ArrayList <>();
+    public List<String> getObjects() {
+        List<String> list = new ArrayList <>();
         list.add(this.name);
         list.add(this.message);
         list.add(this.parent);
