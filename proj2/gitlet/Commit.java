@@ -51,6 +51,9 @@ public class Commit implements Serializable {
     public Date getTimeStamp() {
         return timestamp;
     }
+    public String getParent() {
+        return parent;
+    }
     public HashMap<String, String> getFileset() {
         return fileSet;
     }
@@ -80,15 +83,4 @@ public class Commit implements Serializable {
         return clone;
     }
 
-    public List<String> getObjects() {
-        List<String> list = new ArrayList <>();
-        list.add(this.name);
-        list.add(this.message);
-        list.add(this.parent);
-        if (fileSet != null) {
-            Set<String> hashSet = fileSet.keySet();
-            list.addAll(hashSet);
-        }
-        return list;
-    }
 }

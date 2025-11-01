@@ -83,7 +83,7 @@ public class Repository {
         // Step2
         Commit commit = new Commit();
         // TODO: how to use the object of the commit to create a sha-1 to represent this commit.
-        String sha1 = Utils.sha1(commit.getObjects());
+        String sha1 = Utils.sha1(serialize(commit));
         commit.setName(sha1);
         // Use sha-1 to represent the commit and save it in the commits directory.
         File commits = new File(GITLET_DIR, "commits");
