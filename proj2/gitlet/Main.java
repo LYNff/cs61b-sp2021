@@ -14,61 +14,62 @@ public class Main {
     /** Usage: java gitlet.Main ARGS, where ARGS contains
      *  <COMMAND> <OPERAND1> <OPERAND2> ... 
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         // TODO: what if args is empty?
-        if (args.length == 0) {
-            System.out.println("Please enter a command.");
-            System.exit(0);
-        }
-        String firstArg = args[0];
-        switch(firstArg) {
-            case "init":
-                // TODO: handle the `init` command
-                validateNumArgs("init", args, 1);
-                Repository.makeInit();
-                break;
-            case "add":
-                // TODO: handle the `add [filename]` command
-                if (args.length == 1) {
-                    System.out.println("Please enter a commit message.");
-                    System.exit(0);
-                }
-                validateNumArgs("add", args, 2);
-                File f = new File(args[1]);
-                Repository.add(f);
-                break;
-            // TODO: FILL THE REST IN
-            case "commit":
-                validateNumArgs("commit", args, 2);
-                Repository.commit(args[1]);
-                break;
-            case "log":
-                validateNumArgs("rm", args, 1);
-                Repository.log();
-                break;
-            case "checkout":
-                if (args.length == 2) {
-                    if (!branchContains(args[1])) {
-                        System.out.println("No such branch exists.");
+        try {
+            if (args.length == 0) {
+                System.out.println("Please enter a command.");
+                System.exit(0);
+            }
+            String firstArg = args[0];
+            switch (firstArg) {
+                case "init":
+                    // TODO: handle the `init` command
+                    validateNumArgs("init", args, 1);
+                    Repository.makeInit();
+                    break;
+                case "add":
+                    // TODO: handle the `add [filename]` command
+                    if (args.length == 1) {
+                        System.out.println("Please enter a commit message.");
                         System.exit(0);
                     }
-                    Repository.checkout(args[1]);
-                }
-                else if (args.length == 3) {
-                    Repository.checkout(headCommit(), args[2]);
-                }
-                else if (args.length == 4) {
-                    Commit commit = readFromfile(args[1]);
-                    if (commit == null) {
-                        System.out.println("No commit with that id exists.");
-                        System.exit(0);
+                    validateNumArgs("add", args, 2);
+                    File f = new File(args[1]);
+                    Repository.add(f);
+                    break;
+                // TODO: FILL THE REST IN
+                case "commit":
+                    validateNumArgs("commit", args, 2);
+                    Repository.commit(args[1]);
+                    break;
+                case "log":
+                    validateNumArgs("rm", args, 1);
+                    Repository.log();
+                    break;
+                case "checkout":
+                    if (args.length == 2) {
+                        if (!branchContains(args[1])) {
+                            System.out.println("No such branch exists.");
+                            System.exit(0);
+                        }
+                        Repository.checkout(args[1]);
+                    } else if (args.length == 3) {
+                        Repository.checkout(headCommit(), args[2]);
+                    } else if (args.length == 4) {
+                        Commit commit = readFromfile(args[1]);
+                        if (commit == null) {
+                            System.out.println("No commit with that id exists.");
+                            System.exit(0);
+                        }
+                        Repository.checkout(commit, args[3]);
+                    } else {
+                        validateNumArgs("checkout", args, 2);
                     }
-                    Repository.checkout(commit, args[3]);
-                }
-                else {
-                    validateNumArgs("checkout", args, 2);
-                }
-                break;
+                    break;
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
     public static void validateNumArgs(String cmd, String[] args, int n) {
