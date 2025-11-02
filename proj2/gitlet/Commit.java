@@ -35,7 +35,7 @@ public class Commit implements Serializable {
         message = "initial commit";
         timestamp = new Date(0); // TODO: verify this is the epoch data.
         parent = null;
-        fileSet = null;
+        fileSet = new HashMap<>();
         name = null;
     }
 
