@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Stack;
 
@@ -146,7 +147,7 @@ public class Repository {
             if (blob1.equals(blob2)) {
                 // If the file exists in the staging area, remove it.
                 if (addStage.exists()) {
-                    Utils.restrictedDelete(addStage);
+                    Files.delete(addStage.toPath());
                 }
                 System.exit(0);
             }
@@ -163,7 +164,7 @@ public class Repository {
         // If in the removal area, remove it from the area.
         File removestage = new File(STAGING_FOR_REMOVAL, f.getName());
         if (removestage.exists()) {
-            Utils.restrictedDelete(removestage);
+            Files.delete(removestage.toPath());
         }
     }
 
@@ -198,7 +199,7 @@ public class Repository {
             // Put the file in the stage area into Commit.
             fileSet.put(file.getName(), Utils.readContentsAsString(file));
             // Delete the file after commit.
-            Utils.restrictedDelete(file);
+            Files.delete(file.toPath());
         }
         // Save the new commit node to the commit tree.
         String commitSha1 = Utils.sha1(serialize(newCommit));
