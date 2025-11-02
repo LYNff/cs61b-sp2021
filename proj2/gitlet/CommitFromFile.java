@@ -35,6 +35,7 @@ public class CommitFromFile {
             list.push(head);
             head = readFromfile(head.getParent());
         }
+        list.push(head);
         return list;
     }
 }
