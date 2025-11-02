@@ -237,6 +237,7 @@ public class Repository {
                 text = String.format("===\ncommit %s\nDate: %s\n%s\n", commit.getName(), formatted, commit.getMessage());
             }
             texts.append(text);
+            texts.append("\n");
         }
         System.out.println(texts);
     }
