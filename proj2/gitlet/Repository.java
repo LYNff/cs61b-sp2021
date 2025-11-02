@@ -214,6 +214,30 @@ public class Repository {
 
         // Write back any new object made or any modified object read earlier.
     }
+    public static void rm(String fileName) throws IOException {
+        // If the file is currently staged for addition.
+        if (containsInstage(fileName)) {
+            removeFromaddstage(fileName);
+        }
+        // If the file is tracked in the current commit.
+        else if (commitContains(headCommit(), fileName)) {
+            // Stage it for removal and remove the file from the working directory.
+            File removal = new File(GITLET_STAGING_AREA_DIR, "removal");
+            if (!removal.exists()) {
+                removal.mkdir();
+            }
+            addToremoval(fileName);
+            File filetoremove = new File(CWD, fileName);
+            if (filetoremove.exists()) {
+                restrictedDelete(fileName);
+            }
+        }
+        // Failure cases
+        else {
+            System.out.println("No reason to remove the file.");
+            System.exit(0);
+        }
+    }
 
     public static void log() {
         /**
@@ -224,22 +248,19 @@ public class Repository {
         Stack<Commit> stack = commitStack();
         StringBuilder texts = new StringBuilder();
         for (Commit commit : stack) {
-            String text;
-            SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z", Locale.ENGLISH);
-            sdf.setTimeZone(TimeZone.getTimeZone("GMT-8"));
-
-            String formatted = sdf.format(commit.getTimeStamp());
-
-            if (commit.getMother() != null) {
-                text = String.format("===\ncommit %s\nMerge: %.7s %.7s\nDate: %s\n%s\n", commit.getName(), commit.getParent(), commit.getMother(), formatted, commit.getMessage());
-            }
-            else {
-                text = String.format("===\ncommit %s\nDate: %s\n%s\n", commit.getName(), formatted, commit.getMessage());
-            }
-            texts.append(text);
-            texts.append("\n");
+            texts.append(Commit.contentsForlog(commit));
         }
-        System.out.println(texts);
+        System.out.print(texts);
+    }
+
+    public static void globalLog() {
+        File[] files = GITLET_COMMITS_DIR.listFiles();
+        StringBuilder texts = new StringBuilder();
+        for (File file : files) {
+            Commit commit = readFromfile(Utils.readContentsAsString(file));
+            texts.append(Commit.contentsForlog(commit));
+        }
+        System.out.print(texts);
     }
 
     // Three cases in checkout.

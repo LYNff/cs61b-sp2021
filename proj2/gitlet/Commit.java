@@ -4,6 +4,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /** Represents a gitlet commit object.
@@ -77,5 +78,25 @@ public class Commit implements Serializable {
         clone.timestamp = new Date();
         clone.fileSet = headPointer.fileSet;
         return clone;
+    }
+
+    public static String contentsForlog(Commit commit) {
+        StringBuilder texts = new StringBuilder();
+        String text;
+
+        SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z", Locale.ENGLISH);
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT-8"));
+        String formatted = sdf.format(commit.getTimeStamp());
+
+        if (commit.getMother() != null) {
+            text = String.format("===\ncommit %s\nMerge: %.7s %.7s\nDate: %s\n%s\n", commit.getName(), commit.getParent(), commit.getMother(), formatted, commit.getMessage());
+        }
+        else {
+            text = String.format("===\ncommit %s\nDate: %s\n%s\n", commit.getName(), formatted, commit.getMessage());
+        }
+        texts.append(text);
+        texts.append("\n");
+
+        return texts.toString();
     }
 }

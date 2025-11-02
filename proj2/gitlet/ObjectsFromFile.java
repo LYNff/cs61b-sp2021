@@ -101,4 +101,14 @@ public class ObjectsFromFile {
             Files.delete(f.toPath());
         }
     }
+
+    public static void addToremoval(String fileName) throws IOException {
+        File remove = new File(STAGING_FOR_REMOVAL, fileName);
+        if (!remove.exists()) {
+            remove.createNewFile();
+        }
+        HashMap<String, String> fileSet = headCommit().getFileset();
+        String blob = fileSet.get(fileName);
+        Utils.writeContents(remove, blob);
+    }
 }

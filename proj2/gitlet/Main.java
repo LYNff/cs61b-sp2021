@@ -43,10 +43,16 @@ public class Main {
                     validateNumArgs("commit", args, 2);
                     Repository.commit(args[1]);
                     break;
+                case "rm" :
+                    validateNumArgs("rm", args, 2);
+                    Repository.rm(args[1]);
                 case "log":
                     validateNumArgs("rm", args, 1);
                     Repository.log();
                     break;
+                case "global-log":
+                    validateNumArgs("global-log", args, 1);
+                    Repository.globalLog();
                 case "checkout":
                     if (args.length == 2) {
                         if (!branchContains(args[1])) {
