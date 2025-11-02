@@ -114,7 +114,7 @@ public class Repository {
         if (!addtion.exists()) {
             addtion.mkdir();
         }
-        File blobarea = new File(GITLET_BLOBS_DIR, "blobs");
+        File blobarea = new File(GITLET_DIR, "blobs");
         if (!blobarea.exists()) {
             blobarea.mkdir();
         }
@@ -154,7 +154,7 @@ public class Repository {
         // Add the file to the staging ara.
         addStage.createNewFile();
         Utils.writeContents(addStage, blob2);
-        
+
         // Add the content of the file to the blobs.
         File blobToadd = new File(GITLET_BLOBS_DIR, blob2);
         blobToadd.createNewFile();
