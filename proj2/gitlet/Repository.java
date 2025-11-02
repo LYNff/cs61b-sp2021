@@ -226,10 +226,10 @@ public class Repository {
         for (Commit commit : stack) {
             String text;
             SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z", Locale.ENGLISH);
-            sdf.setTimeZone(TimeZone.getTimeZone("GMT+8"));
+            sdf.setTimeZone(TimeZone.getTimeZone("GMT-8"));
 
             String formatted = sdf.format(commit.getTimeStamp());
-            
+
             if (commit.getMother() != null) {
                 text = String.format("===\ncommit %s\nMerge: %.7s %.7s\nDate: %s\n%s\n", commit.getName(), commit.getParent(), commit.getMother(), formatted, commit.getMessage());
             }
