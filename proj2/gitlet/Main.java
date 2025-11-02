@@ -3,6 +3,9 @@ package gitlet;
 import java.io.File;
 import java.io.IOException;
 
+import static gitlet.GitletConstants.*;
+import static gitlet.ObjectsFromFile.*;
+
 /** Driver class for Gitlet, a subset of the Git version-control system.
  *  @author TODO
  */
@@ -42,6 +45,29 @@ public class Main {
             case "log":
                 validateNumArgs("rm", args, 1);
                 Repository.log();
+                break;
+            case "checkout":
+                if (args.length == 2) {
+                    if (!branchContains(args[1])) {
+                        System.out.println("No such branch exists.");
+                        System.exit(0);
+                    }
+                    Repository.checkout(args[1]);
+                }
+                else if (args.length == 3) {
+                    Repository.checkout(headCommit(), args[2]);
+                }
+                else if (args.length == 4) {
+                    Commit commit = readFromfile(args[1]);
+                    if (commit == null) {
+                        System.out.println("No commit with that id exists.");
+                        System.exit(0);
+                    }
+                    Repository.checkout(commit, args[3]);
+                }
+                else {
+                    validateNumArgs("checkout", args, 2);
+                }
                 break;
         }
     }

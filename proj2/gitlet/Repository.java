@@ -4,10 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.Stack;
 
 import static gitlet.GitletConstants.*;
-import static gitlet.CommitFromFile.*;
+import static gitlet.ObjectsFromFile.*;
 import static gitlet.Utils.*;
 
 // TODO: any imports you need here
@@ -128,7 +129,7 @@ public class Repository {
         // Step2
         // Use HEAD pointer.
         File c = getHeadcommitFile();
-        Commit head = CommitFromFile.readFromfile(Utils.readContentsAsString(c));
+        Commit head = ObjectsFromFile.readFromfile(Utils.readContentsAsString(c));
         HashMap<String, String> fileSet = head.getFileset();
 
         // Create a file by the name of the f to add.
@@ -180,7 +181,7 @@ public class Repository {
          */
         // Read from my computer the head commit object and the staging area.
         File c = getHeadcommitFile();
-        Commit head = CommitFromFile.readFromfile(Utils.readContentsAsString(c));
+        Commit head = ObjectsFromFile.readFromfile(Utils.readContentsAsString(c));
         HashMap<String, String> fileSet = head.getFileset();
 
         File addStage = new File(STAGING_FOR_ADDTION.toString());
@@ -215,19 +216,76 @@ public class Repository {
         // Write back any new object made or any modified object read earlier.
     }
 
-    public static void log() throws IOException {
+    public static void log() {
         /**
-         *  TODO: Display information about each commit backwards along the commit tree until the initial commit.
-         *  TODO: Follow the first parent commit links
-         *  TODO: Ignore any second parents found in merge commits.
+         *  TODO: Display information about each commit backwards along the commit tree until the initial commit./
+         *  TODO: Follow the first parent commit links./
+         *  TODO: Ignore any second parents found in merge commits./
          */
         Stack<Commit> stack = commitStack();
         StringBuilder texts = new StringBuilder();
         for (Commit commit : stack) {
-            String text = String.format("===\ncommit %s\nDate: %s\n%s\n", commit.getName(), commit.getTimeStamp().toString(), commit.getMessage());
+            String text;
+            if (commit.getMother() != null) {
+                text = String.format("===\ncommit %s\nMerge: %.7s %.7s\nDate: %s\n%s\n", commit.getName(), commit.getParent(), commit.getMother(), commit.getTimeStamp().toString(), commit.getMessage());
+            }
+            else {
+                text = String.format("===\ncommit %s\nDate: %s\n%s\n", commit.getName(), commit.getTimeStamp().toString(), commit.getMessage());
+            }
             texts.append(text);
         }
         System.out.println(texts);
+    }
+
+    // Three cases in checkout.
+    public static void checkout(Commit commit, String fileName) throws IOException {
+        if (!commitContains(commit, fileName)) {
+            System.out.println("File does not exist in that commit.");
+            System.exit(0);
+        }
+        File blob = blob(commit, fileName);
+        File addTowork = new File(CWD, fileName);
+        if (!addTowork.exists()) {
+            addTowork.createNewFile();
+        }
+        String text = Utils.readContentsAsString(blob);
+        Utils.writeContents(addTowork, text);
+    }
+    public static void checkout(String branchName) throws IOException {
+        // Check this branch to the current branch.
+        boolean isChecked = checkBranch(branchName);
+        if (!isChecked) {
+            System.out.println("No need to checkout the current branch.");
+            System.exit(0);
+        }
+        // If there is an untracked file in the current branch.
+        File[] filesCWD = CWD.listFiles();
+        for (File file : filesCWD) {
+            if (!isTracked(null, file.getName())) {
+                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                System.exit(0);
+            }
+        }
+
+        File heads = new File(GITLET_HEAD_DIR, branchName);
+        String sha1 = Utils.readContentsAsString(heads);
+
+        Commit commit = readFromfile(sha1);
+        HashMap<String, String> fileSet = commit.getFileset();
+        Set<String> keySet = fileSet.keySet();
+        for (String fileName : keySet) {
+            checkout(commit, fileName);
+        }
+
+        // TODO: Delete any files tracked in the current branch but not present in the checked-out branch./
+        File[] afterChange = CWD.listFiles();
+        for (File file : afterChange) {
+            if (!isTracked(branchName, file.getName())) {
+                restrictedDelete(file.getName());
+            }
+        }
+        // Clear the staging area.
+        cleanStage();
     }
 
 }

@@ -25,6 +25,7 @@ public class Commit implements Serializable {
     private String message;
     private Date timestamp;
     private String parent;
+    private String mother;
     // Use hashmap to express the file in this snapshot.
     private HashMap<String, String> fileSet;
     // Remember the sha1-name of the commit node.
@@ -35,6 +36,7 @@ public class Commit implements Serializable {
         message = "initial commit";
         timestamp = new Date(0); // TODO: verify this is the epoch data.
         parent = null;
+        mother = null;
         fileSet = new HashMap<>();
         name = null;
     }
@@ -49,6 +51,9 @@ public class Commit implements Serializable {
     public String getParent() {
         return parent;
     }
+    public String getMother() {
+        return mother;
+    }
     public HashMap<String, String> getFileset() {
         return fileSet;
     }
@@ -61,6 +66,9 @@ public class Commit implements Serializable {
     }
     public void setParent(String parent) {
         this.parent = parent;
+    }
+    public void setMother(String mother) {
+        this.mother = mother;
     }
 
     public static Commit cloneCommit(Commit headPointer, String message) {
