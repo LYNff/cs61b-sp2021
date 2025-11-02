@@ -3,9 +3,8 @@ package gitlet;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.Stack;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import static gitlet.GitletConstants.*;
 import static gitlet.ObjectsFromFile.*;
@@ -226,11 +225,16 @@ public class Repository {
         StringBuilder texts = new StringBuilder();
         for (Commit commit : stack) {
             String text;
+            SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z", Locale.ENGLISH);
+            sdf.setTimeZone(TimeZone.getTimeZone("GMT+8"));
+
+            String formatted = sdf.format(commit.getTimeStamp());
+            
             if (commit.getMother() != null) {
-                text = String.format("===\ncommit %s\nMerge: %.7s %.7s\nDate: %s\n%s\n", commit.getName(), commit.getParent(), commit.getMother(), commit.getTimeStamp().toString(), commit.getMessage());
+                text = String.format("===\ncommit %s\nMerge: %.7s %.7s\nDate: %s\n%s\n", commit.getName(), commit.getParent(), commit.getMother(), formatted, commit.getMessage());
             }
             else {
-                text = String.format("===\ncommit %s\nDate: %s\n%s\n", commit.getName(), commit.getTimeStamp().toString(), commit.getMessage());
+                text = String.format("===\ncommit %s\nDate: %s\n%s\n", commit.getName(), formatted, commit.getMessage());
             }
             texts.append(text);
         }
