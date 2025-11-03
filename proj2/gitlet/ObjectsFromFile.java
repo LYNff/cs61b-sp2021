@@ -3,8 +3,7 @@ package gitlet;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.Stack;
+import java.util.*;
 
 import static gitlet.GitletConstants.*;
 
@@ -51,27 +50,57 @@ public class ObjectsFromFile {
         return branch.exists();
     }
 
+    public static String headBranchName() {
+        File head = new File(GITLET_HEAD_DIR, "HEAD");
+        return Utils.readContentsAsString(head);
+    }
+    // The branches without headBranch in order.
+    public static SortedSet<String> branchNames() {
+        SortedSet<String> branchNames = fileSort(GITLET_HEAD_DIR);
+        branchNames.remove(headBranchName());
+        return branchNames;
+    }
+
+    public static SortedSet<String> stagingAreas(File file) {
+        return fileSort(file);
+    }
+
+    private static SortedSet<String> fileSort(File dir) {
+        SortedSet<String> fileNames = new TreeSet<>();
+        File[] files = dir.listFiles();
+        for (File f : files) {
+            fileNames.add(Utils.readContentsAsString(f));
+        }
+        return fileNames;
+    }
     // Return the file having contents that Key point at in the commit.
-    public static File blob(Commit commit, String name) {
+    public static File blobCommit(Commit commit, String name) {
         HashMap<String, String> fileSet = commit.getFileset();
         if (fileSet.containsKey(name)) {
             return new File(GITLET_BLOBS_DIR, fileSet.get(name));
         }
         return null;
     }
+    public static File blobStage(String name) {
+        File stage = new File(STAGING_FOR_ADDTION, name);
+        String blobFile = Utils.readContentsAsString(stage);
+
+        return new File(GITLET_BLOBS_DIR, blobFile);
+    }
 
     // Verify if the name exists in the staging area for addition.
-    public static boolean containsInstage(String fileName) {
-        File addStage = new File(STAGING_FOR_ADDTION, fileName);
+    public static boolean containsInstage(File stage,String fileName) {
+        File addStage = new File(stage, fileName);
         return addStage.exists();
     }
     public static void removeFromaddstage(String fileName) throws IOException {
-        if (containsInstage(fileName)) {
+        if (containsInstage(STAGING_FOR_ADDTION, fileName)) {
             File addStage = new File(STAGING_FOR_ADDTION, fileName);
             Files.delete(addStage.toPath());
         }
     }
 
+    // Verify if the branch wanted to check is identical to the current branch.
     public static boolean checkBranch(String branchName) {
         File head = new File(GITLET_DIR, "HEAD");
         String headBranch = Utils.readContentsAsString(head);
@@ -91,7 +120,57 @@ public class ObjectsFromFile {
         File branch = new File(GITLET_HEAD_DIR, branchName);
         String headBranch = Utils.readContentsAsString(branch);
         Commit commit = readFromfile(headBranch);
-        return containsInstage(fileName) ||  commitContains(commit, fileName);
+        return containsInstage(STAGING_FOR_ADDTION, fileName) ||  commitContains(commit, fileName);
+    }
+
+    // Verify is the file in the working directory which is tracked changed.
+    public static boolean isfileChanged(File blob, String fileName) {
+        String content = Utils.readContentsAsString(blob);
+
+        File file = new File(CWD, fileName);
+        String text = Utils.readContentsAsString(file);
+        return !content.equals(text);
+    }
+
+    public static SortedSet<String> notStaged() {
+        SortedSet<String> notStaged = new TreeSet<>();
+        // Tracked in the current commit, changed in the working, but not staged.
+        File[] files = CWD.listFiles();
+        if (files != null) {
+            for (File f : files) {
+                if (isTracked(headBranchName(), f.getName())) {
+                    // Changed but not staged.
+                    boolean case1 = isfileChanged(blobCommit(headCommit(), f.getName()), f.getName()) && !containsInstage(STAGING_FOR_ADDTION, f.getName());
+                    // Staged for addition, but with different contents than in the working directory.
+                    boolean case2 = containsInstage(STAGING_FOR_ADDTION, f.getName()) && isfileChanged(blobStage(f.getName()), f.getName());
+                    if (case1 || case2) {
+                        String s = f.getName() + " (modified)";
+                        notStaged.add(s);
+                    }
+                }
+            }
+        }
+        // Staged for addition, but deleted in the working directory.
+        File[] filesInstage = STAGING_FOR_ADDTION.listFiles();
+        if (filesInstage != null) {
+            for (File f : filesInstage) {
+                File fileInworkspace = new File(CWD, f.getName());
+                if (!fileInworkspace.exists()) {
+                    String s = f.getName() + " (deleted)";
+                    notStaged.add(s);
+                }
+            }
+        }
+        // Not staged for removal, but tracked in the current commit and delete from the working directory.
+        Set<String> fileSet = headCommit().getFileset().keySet();
+        for (String fileName : fileSet) {
+            File fileInworkspace = new File(CWD, fileName);
+            if (!fileInworkspace.exists() && !containsInstage(STAGING_FOR_REMOVAL, fileName)) {
+                String s = fileName + " (deleted)";
+                notStaged.add(s);
+            }
+        }
+        return notStaged;
     }
 
     // Clear the staging are.

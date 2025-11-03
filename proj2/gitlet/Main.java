@@ -53,6 +53,12 @@ public class Main {
                 case "global-log":
                     validateNumArgs("global-log", args, 1);
                     Repository.globalLog();
+                case "find":
+                    validateNumArgs("find", args, 2);
+                    Repository.find(args[1]);
+                case "status":
+                    validateNumArgs("status", args, 1);
+                    Repository.status();
                 case "checkout":
                     if (args.length == 2) {
                         if (!branchContains(args[1])) {
@@ -72,6 +78,13 @@ public class Main {
                     } else {
                         validateNumArgs("checkout", args, 2);
                     }
+                    break;
+                case "branch":
+                    validateNumArgs("branch", args, 2);
+                    Repository.branch(args[1]);
+                    break;
+                case "rm-branch":
+                    validateNumArgs("rm-branch", args, 2);
                     break;
             }
         } catch (IOException e) {

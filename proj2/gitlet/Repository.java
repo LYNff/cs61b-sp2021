@@ -216,7 +216,7 @@ public class Repository {
     }
     public static void rm(String fileName) throws IOException {
         // If the file is currently staged for addition.
-        if (containsInstage(fileName)) {
+        if (containsInstage(STAGING_FOR_ADDTION, fileName)) {
             removeFromaddstage(fileName);
         }
         // If the file is tracked in the current commit.
@@ -263,13 +263,64 @@ public class Repository {
         System.out.print(texts);
     }
 
+    public static void find(String message) {
+        File[] files = GITLET_COMMITS_DIR.listFiles();
+        boolean hasCommit = false;
+        for (File file : files) {
+            Commit commit = readFromfile(Utils.readContentsAsString(file));
+            if (commit.getMessage().equals(message)) {
+                hasCommit = true;
+                System.out.println(commit.getName());
+            }
+        }
+        // Failure cases.
+        if (!hasCommit) {
+            System.out.println("Found no commit with that message.");
+        }
+    }
+
+    public static void status() {
+        StringBuilder texts = new StringBuilder();
+        texts.append("=== Branches ===\n");
+        // *master
+        texts.append("*").append(headBranchName()).append("\n");
+        SortedSet<String> branches = branchNames();
+        for (String branch : branches) {
+               texts.append(branch).append("\n");
+        }
+        texts.append("\n=== Staged Files ===\n");
+        SortedSet<String> filesAdd = stagingAreas(STAGING_FOR_ADDTION);
+        for (String fileName : filesAdd) {
+            texts.append(fileName).append("\n");
+        }
+        texts.append("\n=== Removed Files ===\n");
+        SortedSet<String> filesRemove = stagingAreas(STAGING_FOR_REMOVAL);
+        for (String fileName : filesRemove) {
+            texts.append(fileName).append("\n");
+        }
+        texts.append("\n=== Modifivations Not Staged For Commit ===\n");
+        SortedSet<String> filesNotstaged = notStaged();
+        for (String file : filesNotstaged) {
+            texts.append(file).append("\n");
+        }
+        texts.append("\n=== Untracked Files ===\n");
+        File[] workingArea = CWD.listFiles();
+        if (workingArea != null) {
+            for (File file : workingArea) {
+                if (isTracked(headBranchName(), file.getName())) {
+                    texts.append(file.getName()).append("\n");
+                }
+            }
+        }
+        System.out.println(texts);
+    }
     // Three cases in checkout.
     public static void checkout(Commit commit, String fileName) throws IOException {
         if (!commitContains(commit, fileName)) {
             System.out.println("File does not exist in that commit.");
             System.exit(0);
         }
-        File blob = blob(commit, fileName);
+        File blob = blobCommit(commit, fileName);
         File addTowork = new File(CWD, fileName);
         if (!addTowork.exists()) {
             addTowork.createNewFile();
@@ -313,5 +364,19 @@ public class Repository {
         // Clear the staging area.
         cleanStage();
     }
+
+    public static void branch(String branchName) throws IOException {
+        Branch newbranch = new Branch(branchName, headCommit());
+
+        File newbranchFile = new File(GITLET_HEAD_DIR, branchName);
+        // Failure cases.
+        if (newbranchFile.exists()) {
+            System.out.println("A branch with that name already exists.");
+            System.exit(0);
+        }
+        newbranchFile.createNewFile();
+        Utils.writeContents(newbranchFile, serialize(headCommit()));
+    }
+
 
 }
