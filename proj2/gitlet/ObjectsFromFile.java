@@ -51,7 +51,7 @@ public class ObjectsFromFile {
     }
 
     public static String headBranchName() {
-        File head = new File(GITLET_HEAD_DIR, "HEAD");
+        File head = new File(GITLET_DIR, "HEAD");
         return Utils.readContentsAsString(head);
     }
     // The branches without headBranch in order.
