@@ -114,10 +114,6 @@ public class ObjectsFromFile {
 
     // Verify is the file tracked in this branch.
     public static boolean isTracked(String branchName, String fileName) {
-        if (branchName == null) {
-            File head = new File(GITLET_DIR, "HEAD");
-            branchName = Utils.readContentsAsString(head);
-        }
         File branch = new File(GITLET_HEAD_DIR, branchName);
         String headBranch = Utils.readContentsAsString(branch);
         Commit commit = readFromfile(headBranch);
@@ -129,9 +125,6 @@ public class ObjectsFromFile {
         String content = Utils.readContentsAsString(blob);
 
         File file = new File(CWD, fileName);
-        if (!file.exists()) {
-            return false;
-        }
         String text = Utils.readContentsAsString(file);
         return !content.equals(text);
     }
@@ -142,7 +135,7 @@ public class ObjectsFromFile {
         File[] files = CWD.listFiles();
         if (files != null) {
             for (File f : files) {
-                if (isTracked(headBranchName(), f.getName())) {
+                if (commitContains(headCommit(), f.getName())) {
                     // Changed but not staged.
                     boolean case1 = isfileChanged(blobCommit(headCommit(), f.getName()), f.getName()) && !containsInstage(STAGING_FOR_ADDTION, f.getName());
                     // Staged for addition, but with different contents than in the working directory.

@@ -338,7 +338,7 @@ public class Repository {
         // If there is an untracked file in the current branch.
         File[] filesCWD = CWD.listFiles();
         for (File file : filesCWD) {
-            if (!isTracked(null, file.getName())) {
+            if (!isTracked(headBranchName(), file.getName())) {
                 System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
                 System.exit(0);
             }
