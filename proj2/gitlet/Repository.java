@@ -375,7 +375,8 @@ public class Repository {
             System.exit(0);
         }
         newbranchFile.createNewFile();
-        Utils.writeContents(newbranchFile, serialize(headCommit()));
+        Commit headcommit = headCommit();
+        Utils.writeContents(newbranchFile, serialize(headcommit));
     }
 
 
