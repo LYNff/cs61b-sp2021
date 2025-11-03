@@ -105,11 +105,7 @@ public class ObjectsFromFile {
     public static boolean checkBranch(String branchName) {
         File head = new File(GITLET_DIR, "HEAD");
         String headBranch = Utils.readContentsAsString(head);
-        if (headBranch.equals(branchName)) {
-            return false;
-        }
-        Utils.writeContents(head, branchName);
-        return true;
+        return !headBranch.equals(branchName);
     }
 
     // Verify is the file tracked in this branch.
