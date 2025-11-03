@@ -12,7 +12,7 @@ public class GitletConstants {
     public static final File GITLET_DIR = join(CWD, ".gitlet");
     public static final File GITLET_STAGING_AREA_DIR = join(GITLET_DIR, "index");
     public static final File STAGING_FOR_ADDTION =  join(GITLET_STAGING_AREA_DIR, "addition");
-    public static final File STAGING_FOR_REMOVAL = join(GITLET_STAGING_AREA_DIR, "remove");
+    public static final File STAGING_FOR_REMOVAL = join(GITLET_STAGING_AREA_DIR, "removal");
 
     public static final File GITLET_COMMITS_DIR = join(GITLET_DIR, "commits");
     public static final File GITLET_BLOBS_DIR = join(GITLET_DIR, "blobs");
