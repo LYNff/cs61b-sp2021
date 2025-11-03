@@ -307,7 +307,7 @@ public class Repository {
         File[] workingArea = CWD.listFiles();
         if (workingArea != null) {
             for (File file : workingArea) {
-                if (isTracked(headBranchName(), file.getName())) {
+                if (!isTracked(headBranchName(), file.getName())) {
                     texts.append(file.getName()).append("\n");
                 }
             }
