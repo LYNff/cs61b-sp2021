@@ -53,12 +53,15 @@ public class Main {
                 case "global-log":
                     validateNumArgs("global-log", args, 1);
                     Repository.globalLog();
+                    break;
                 case "find":
                     validateNumArgs("find", args, 2);
                     Repository.find(args[1]);
+                    break;
                 case "status":
                     validateNumArgs("status", args, 1);
                     Repository.status();
+                    break;
                 case "checkout":
                     if (args.length == 2) {
                         if (!branchContains(args[1])) {

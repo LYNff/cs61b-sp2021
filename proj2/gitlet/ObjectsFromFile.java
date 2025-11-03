@@ -69,7 +69,7 @@ public class ObjectsFromFile {
         File[] files = dir.listFiles();
         if (files != null) {
             for (File f : files) {
-                fileNames.add(Utils.readContentsAsString(f));
+                fileNames.add(f.getName());
             }
         }
         return fileNames;
