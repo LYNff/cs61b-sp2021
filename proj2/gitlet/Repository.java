@@ -184,7 +184,7 @@ public class Repository {
         HashMap<String, String> fileSet = head.getFileset();
 
         File addStage = new File(STAGING_FOR_ADDTION.toString());
-        File[] files = addStage.listFiles();
+        File[] files = addStage.listFiles(file -> !file.isHidden() && file.isFile());
         // Failure case
         if (files.length == 0) {
             System.out.println("No changes added to the commit.");
@@ -254,7 +254,7 @@ public class Repository {
     }
 
     public static void globalLog() {
-        File[] files = GITLET_COMMITS_DIR.listFiles();
+        File[] files = GITLET_COMMITS_DIR.listFiles(file -> !file.isHidden() && file.isFile());
         StringBuilder texts = new StringBuilder();
         for (File file : files) {
             Commit commit = readFromfile(Utils.readContentsAsString(file));
@@ -264,7 +264,7 @@ public class Repository {
     }
 
     public static void find(String message) {
-        File[] files = GITLET_COMMITS_DIR.listFiles();
+        File[] files = GITLET_COMMITS_DIR.listFiles(file -> !file.isHidden() && file.isFile());
         boolean hasCommit = false;
         for (File file : files) {
             Commit commit = readFromfile(Utils.readContentsAsString(file));
@@ -304,7 +304,7 @@ public class Repository {
             texts.append(file).append("\n");
         }
         texts.append("\n=== Untracked Files ===\n");
-        File[] workingArea = CWD.listFiles();
+        File[] workingArea = CWD.listFiles(file -> !file.isHidden() && file.isFile());
         if (workingArea != null) {
             for (File file : workingArea) {
                 if (!isTracked(headBranchName(), file.getName())) {
@@ -336,7 +336,7 @@ public class Repository {
             System.exit(0);
         }
         // If there is an untracked file in the current branch.
-        File[] filesCWD = CWD.listFiles();
+        File[] filesCWD = CWD.listFiles(file -> !file.isHidden() && file.isFile());
         if (filesCWD != null) {
             for (File file : filesCWD) {
                 if (!isTracked(headBranchName(), file.getName())) {
@@ -359,7 +359,7 @@ public class Repository {
         File head = new File(GITLET_DIR, "HEAD");
         Utils.writeContents(head, branchName);
         // TODO: Delete any files tracked in the current branch but not present in the checked-out branch./
-        File[] afterChange = CWD.listFiles();
+        File[] afterChange = CWD.listFiles(file -> !file.isHidden() && file.isFile());
         if (afterChange != null) {
             for (File file : afterChange) {
                 if (!isTracked(branchName, file.getName())) {

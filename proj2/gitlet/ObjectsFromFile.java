@@ -66,7 +66,7 @@ public class ObjectsFromFile {
 
     private static SortedSet<String> fileSort(File dir) {
         SortedSet<String> fileNames = new TreeSet<>();
-        File[] files = dir.listFiles();
+        File[] files = dir.listFiles(file -> !file.isHidden() && file.isFile());
         if (files != null) {
             for (File f : files) {
                 fileNames.add(f.getName());
@@ -128,7 +128,7 @@ public class ObjectsFromFile {
     public static SortedSet<String> notStaged() {
         SortedSet<String> notStaged = new TreeSet<>();
         // Tracked in the current commit, changed in the working, but not staged.
-        File[] files = CWD.listFiles();
+        File[] files = CWD.listFiles(file -> !file.isHidden() && file.isFile());
         if (files != null) {
             for (File f : files) {
                 if (commitContains(headCommit(), f.getName())) {
@@ -144,7 +144,7 @@ public class ObjectsFromFile {
             }
         }
         // Staged for addition, but deleted in the working directory.
-        File[] filesInstage = STAGING_FOR_ADDTION.listFiles();
+        File[] filesInstage = STAGING_FOR_ADDTION.listFiles(file -> !file.isHidden() && file.isFile());
         if (filesInstage != null) {
             for (File f : filesInstage) {
                 File fileInworkspace = new File(CWD, f.getName());
@@ -168,9 +168,9 @@ public class ObjectsFromFile {
 
     // Clear the staging are.
     public static void cleanStage() throws IOException {
-        File[] file = STAGING_FOR_ADDTION.listFiles();
-        if (file != null) {
-            for (File f : file) {
+        File[] files = STAGING_FOR_ADDTION.listFiles(file -> !file.isHidden() && file.isFile());
+        if (files != null) {
+            for (File f : files) {
                 Files.delete(f.toPath());
             }
         }
