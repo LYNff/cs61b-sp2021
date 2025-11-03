@@ -337,10 +337,12 @@ public class Repository {
         }
         // If there is an untracked file in the current branch.
         File[] filesCWD = CWD.listFiles();
-        for (File file : filesCWD) {
-            if (!isTracked(headBranchName(), file.getName())) {
-                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
-                System.exit(0);
+        if (filesCWD != null) {
+            for (File file : filesCWD) {
+                if (!isTracked(headBranchName(), file.getName())) {
+                    System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                    System.exit(0);
+                }
             }
         }
 
@@ -354,11 +356,15 @@ public class Repository {
             checkout(commit, fileName);
         }
 
+        File head = new File(GITLET_DIR, "HEAD");
+        Utils.writeContents(head, branchName);
         // TODO: Delete any files tracked in the current branch but not present in the checked-out branch./
         File[] afterChange = CWD.listFiles();
-        for (File file : afterChange) {
-            if (!isTracked(branchName, file.getName())) {
-                restrictedDelete(file.getName());
+        if (afterChange != null) {
+            for (File file : afterChange) {
+                if (!isTracked(branchName, file.getName())) {
+                    restrictedDelete(file.getName());
+                }
             }
         }
         // Clear the staging area.
