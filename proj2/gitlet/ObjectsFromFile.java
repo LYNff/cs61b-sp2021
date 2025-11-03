@@ -46,8 +46,7 @@ public class ObjectsFromFile {
         return fileSet.containsKey(fileName);
     }
     public static boolean branchContains(String branchName) {
-        File branch = new File(GITLET_HEAD_DIR, branchName);
-        return branch.exists();
+        return containsInstage(GITLET_HEAD_DIR, branchName);
     }
 
     public static String headBranchName() {
@@ -68,8 +67,10 @@ public class ObjectsFromFile {
     private static SortedSet<String> fileSort(File dir) {
         SortedSet<String> fileNames = new TreeSet<>();
         File[] files = dir.listFiles();
-        for (File f : files) {
-            fileNames.add(Utils.readContentsAsString(f));
+        if (files != null) {
+            for (File f : files) {
+                fileNames.add(Utils.readContentsAsString(f));
+            }
         }
         return fileNames;
     }
@@ -176,8 +177,10 @@ public class ObjectsFromFile {
     // Clear the staging are.
     public static void cleanStage() throws IOException {
         File[] file = STAGING_FOR_ADDTION.listFiles();
-        for (File f : file) {
-            Files.delete(f.toPath());
+        if (file != null) {
+            for (File f : file) {
+                Files.delete(f.toPath());
+            }
         }
     }
 
