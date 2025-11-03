@@ -129,6 +129,9 @@ public class ObjectsFromFile {
         String content = Utils.readContentsAsString(blob);
 
         File file = new File(CWD, fileName);
+        if (!file.exists()) {
+            return false;
+        }
         String text = Utils.readContentsAsString(file);
         return !content.equals(text);
     }
