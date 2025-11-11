@@ -99,6 +99,7 @@ public class ObjectsFromFile {
         File addStage = new File(stage, fileName);
         return addStage.exists();
     }
+
     public static void removeFromaddstage(String fileName) throws IOException {
         if (containsInstage(STAGING_FOR_ADDTION, fileName)) {
             File addStage = new File(STAGING_FOR_ADDTION, fileName);

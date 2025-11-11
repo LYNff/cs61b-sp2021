@@ -379,8 +379,6 @@ public class Repository {
     }
 
     public static void branch(String branchName) throws IOException {
-        Branch newbranch = new Branch(branchName, headCommit());
-
         File newbranchFile = new File(GITLET_HEAD_DIR, branchName);
         // Failure cases.
         if (newbranchFile.exists()) {
@@ -431,6 +429,24 @@ public class Repository {
 
     public static void merge(String branchName) throws IOException {
          /*  Merge files from the given branch into the current branch.*/
+        // Failure cases.
+        if (!stagingAreas(STAGING_FOR_ADDTION).isEmpty() || !stagingAreas(STAGING_FOR_REMOVAL).isEmpty()) {
+            System.out.println("You have uncommitted changes.");
+            System.exit(0);
+        }
+        if (!branchContains(branchName)) {
+            System.out.println("A branch with that name does not exist.");
+            System.exit(0);
+        }
+        if (branchName.equals(headBranchName())) {
+            System.out.println("Cannot merge a branch with itself.");
+            System.exit(0);
+        }
+        if (branchCommit(branchName).getName().equals(headCommit().getName())) {
+            System.out.println("No changes added to the commit.");
+            System.exit(0);
+        }
+
         // Find the split point.
         Stack<Commit> headStack = commitStack(headCommit());
         Stack<Commit> branchStack = commitStack(branchCommit(branchName));
@@ -441,6 +457,7 @@ public class Repository {
                 splitPoint = commit;
             }
         }
+
         // If the split point is the same commit as the given branch.
         if (splitPoint.getName().equals(branchCommit(branchName).getName())) {
             System.out.println("Given branch is an ancestor of the current branch.");
@@ -456,14 +473,8 @@ public class Repository {
         HashMap<String, String> branchSet = branchCommit(branchName).getFileset();
         HashMap<String, String> headSet = branchCommit(branchName).getFileset();
 
+        // Verify if the conflict happened.
         boolean isConflicted = false;
-
-        String message = String.format("Merged %s into %s", branchName, headBranchName());
-        Commit mergeCommit = Commit.cloneCommit(splitPoint, message);
-        // Merge commits differ from other commits: they record as parents both the head of the current branch and the head of the given branch.
-        mergeCommit.setParent(headCommit().getName());
-        mergeCommit.setMother(branchCommit(branchName).getName());
-        HashMap<String, String> mergeSet = mergeCommit.getFileset();
 
         // Any files that were present at the split point.
         for (String fileName : splitSet.keySet()) {
@@ -484,26 +495,23 @@ public class Repository {
             }
             // Any files modified in different ways in the current and given branches are in conflict.
             else if (!headEqualsplit && !branchEqualsplit && !branchEqualhead) {
-                // The contents of both are changed and different from other.
                 isConflicted = true;
-                if (branchSet.containsKey(fileName) && headSet.containsKey(fileName)) {
-                    StringBuilder content = new StringBuilder();
-                    content.append("<<<<<<< HEAD\n");
-                    File headFile = new File(GITLET_BLOBS_DIR, headSet.get(fileName));
-                    String headFilecontent = Utils.readContentsAsString(headFile);
-                    File branchFile = new File(GITLET_BLOBS_DIR, branchSet.get(fileName));
-                    String branchFilecontent = Utils.readContentsAsString(branchFile);
-                    content.append(headFilecontent);
-                    content.append("=======\n");
-                    content.append(branchFilecontent);
-                    content.append(">>>>>>>\n");
+                StringBuilder content = new StringBuilder();
+                content.append("<<<<<<< HEAD\n");
+                File headFile = new File(GITLET_BLOBS_DIR, headSet.get(fileName));
+                String headFilecontent = Utils.readContentsAsString(headFile);
+                File branchFile = new File(GITLET_BLOBS_DIR, branchSet.get(fileName));
+                String branchFilecontent = Utils.readContentsAsString(branchFile);
+                content.append(headFilecontent);
+                content.append("=======\n");
+                content.append(branchFilecontent);
+                content.append(">>>>>>>\n");
 
-                    File newBlob = new File(GITLET_BLOBS_DIR, Utils.sha1(content.toString()));
-                    newBlob.createNewFile();
+                File newBlob = new File(GITLET_BLOBS_DIR, Utils.sha1(content.toString()));
+                newBlob.createNewFile();
 
-                    // Update the file.
-                    headSet.put(fileName, newBlob.getName());
-                }
+                // Update the file.
+                headSet.put(fileName, newBlob.getName());
             }
         }
         // Any files were not present at the split point and are present only in the given branch should be checked out and staged.
@@ -513,6 +521,26 @@ public class Repository {
                 addTostage(STAGING_FOR_ADDTION, fileName);
             }
         }
+
+        // If the merge encounter a conflict.
+        if (isConflicted) {
+            System.out.println("Encountered a merge conflict.");
+        }
+
+        String message = String.format("Merged %s into %s", branchName, headBranchName());
+        Commit mergeCommit = Commit.cloneCommit(splitPoint, message);
+        // Merge commits differ from other commits: they record as parents both the head of the current branch and the head of the given branch.
+        mergeCommit.setParent(headCommit().getName());
+        mergeCommit.setMother(branchCommit(branchName).getName());
+        mergeCommit.setName(Utils.sha1(serialize(mergeCommit)));
+
+        File commitFile = new File(GITLET_COMMITS_DIR, mergeCommit.getName());
+        commitFile.createNewFile();
+        Utils.writeObject(commitFile, mergeCommit);
+
+        // Change the head of the current branch, making it point at the merge commit.
+        File currentBranch = new File(GITLET_HEAD_DIR, headBranchName());
+        Utils.writeContents(currentBranch, mergeCommit.getName());
     }
 
 }
