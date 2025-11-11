@@ -111,6 +111,9 @@ public class Main {
                     validateNumArgs("merge", args, 2);
                     Repository.merge(args[1]);
                     break;
+                default:
+                    System.out.println("No command with that name exists.");
+                    System.exit(0);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -122,8 +125,11 @@ public class Main {
             System.exit(0);
         }
     }
-    public static boolean initChecked() {
+    public static void initChecked() {
         File init = new File(CWD, ".gitlet");
-        return init.exists();
+        if (!init.exists()) {
+            System.out.println("Not in an initialized Gitlet directory.");
+            System.exit(0);
+        }
     }
  }
