@@ -30,6 +30,7 @@ public class Main {
                     break;
                 case "add":
                     // TODO: handle the `add [filename]` command
+                    initChecked();
                     if (args.length == 1) {
                         System.out.println("Please enter a commit message.");
                         System.exit(0);
@@ -40,30 +41,37 @@ public class Main {
                     break;
                 // TODO: FILL THE REST IN
                 case "commit":
+                    initChecked();
                     validateNumArgs("commit", args, 2);
                     Repository.commit(args[1]);
                     break;
                 case "rm" :
+                    initChecked();
                     validateNumArgs("rm", args, 2);
                     Repository.rm(args[1]);
                     break;
                 case "log":
+                    initChecked();
                     validateNumArgs("rm", args, 1);
                     Repository.log();
                     break;
                 case "global-log":
+                    initChecked();
                     validateNumArgs("global-log", args, 1);
                     Repository.globalLog();
                     break;
                 case "find":
+                    initChecked();
                     validateNumArgs("find", args, 2);
                     Repository.find(args[1]);
                     break;
                 case "status":
+                    initChecked();
                     validateNumArgs("status", args, 1);
                     Repository.status();
                     break;
                 case "checkout":
+                    initChecked();
                     if (args.length == 2) {
                         if (!branchContains(args[1])) {
                             System.out.println("No such branch exists.");
@@ -84,18 +92,22 @@ public class Main {
                     }
                     break;
                 case "branch":
+                    initChecked();
                     validateNumArgs("branch", args, 2);
                     Repository.branch(args[1]);
                     break;
                 case "rm-branch":
+                    initChecked();
                     validateNumArgs("rm-branch", args, 2);
                     Repository.rmBranch(args[1]);
                     break;
                 case "reset":
+                    initChecked();
                     validateNumArgs("reset", args, 2);
                     Repository.reset(args[1]);
                     break;
                 case "merge":
+                    initChecked();
                     validateNumArgs("merge", args, 2);
                     Repository.merge(args[1]);
                     break;
@@ -110,5 +122,8 @@ public class Main {
             System.exit(0);
         }
     }
-
-}
+    public static boolean initChecked() {
+        File init = new File(CWD, ".gitlet");
+        return init.exists();
+    }
+ }
