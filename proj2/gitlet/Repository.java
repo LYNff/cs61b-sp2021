@@ -179,27 +179,35 @@ public class Repository {
          * TODO: If no files have been staged./
          */
         // Read from my computer the head commit object and the staging area.
-        File c = getHeadcommitFile();
-        Commit head = ObjectsFromFile.readFromfile(Utils.readContentsAsString(c));
-        HashMap<String, String> fileSet = head.getFileset();
-
         File addStage = new File(STAGING_FOR_ADDTION.toString());
+        File removeStage = new File(STAGING_FOR_REMOVAL.toString());
         File[] files = addStage.listFiles(file -> !file.isHidden() && file.isFile());
+        File[] filesToremove = removeStage.listFiles(file -> !file.isHidden() && file.isFile());
         // Failure case
-        if (files.length == 0) {
+        if (files != null && files.length == 0 && filesToremove != null && filesToremove.length == 0) {
             System.out.println("No changes added to the commit.");
             System.exit(0);
         }
         // Clone the head commit.
         // Modify its message and timestamp according to user input.
-        Commit newCommit = Commit.cloneCommit(head, message);
-        newCommit.setParent(head.getName());
+        Commit newCommit = Commit.cloneCommit(headCommit(), message);
+        newCommit.setParent(headCommit().getName());
+        HashMap<String, String> fileSet = newCommit.getFileset();
+
         // Use the staging area in order to modify the file tracked by the new commit.
-        for (File file : files) {
-            // Put the file in the stage area into Commit.
-            fileSet.put(file.getName(), Utils.readContentsAsString(file));
-            // Delete the file after commit.
-            Files.delete(file.toPath());
+        if (files != null) {
+            for (File file : files) {
+                // Put the file in the stage area into Commit.
+                fileSet.put(file.getName(), Utils.readContentsAsString(file));
+                // Delete the file after commit.
+                Files.delete(file.toPath());
+            }
+        }
+        // Untrack the file in the removal stage.
+        if (filesToremove != null) {
+            for (File file : filesToremove) {
+                fileSet.remove(file.getName());
+            }
         }
         // Save the new commit node to the commit tree.
         String commitSha1 = Utils.sha1(serialize(newCommit));
@@ -226,7 +234,7 @@ public class Repository {
             if (!removal.exists()) {
                 removal.mkdir();
             }
-            addToremoval(fileName);
+            addTostage(STAGING_FOR_REMOVAL, fileName);
             File filetoremove = new File(CWD, fileName);
             if (filetoremove.exists()) {
                 restrictedDelete(fileName);
@@ -245,7 +253,7 @@ public class Repository {
          *  TODO: Follow the first parent commit links./
          *  TODO: Ignore any second parents found in merge commits./
          */
-        Stack<Commit> stack = commitStack();
+        Stack<Commit> stack = commitStack(headCommit());
         StringBuilder texts = new StringBuilder();
         for (Commit commit : stack) {
             texts.append(Commit.contentsForlog(commit));
@@ -256,6 +264,7 @@ public class Repository {
     public static void globalLog() {
         File[] files = GITLET_COMMITS_DIR.listFiles(file -> !file.isHidden() && file.isFile());
         StringBuilder texts = new StringBuilder();
+        // Because of the init commit, the files won't be null.
         for (File file : files) {
             Commit commit = readFromfile(Utils.readContentsAsString(file));
             texts.append(Commit.contentsForlog(commit));
@@ -327,6 +336,11 @@ public class Repository {
         }
         String text = Utils.readContentsAsString(blob);
         Utils.writeContents(addTowork, text);
+
+        // The new version of the file is not staged.
+        if(containsInstage(STAGING_FOR_ADDTION, fileName)) {
+            removeFromaddstage(fileName);
+        }
     }
     public static void checkout(String branchName) throws IOException {
         // Check this branch to the current branch.
@@ -359,14 +373,7 @@ public class Repository {
         File head = new File(GITLET_DIR, "HEAD");
         Utils.writeContents(head, branchName);
         // TODO: Delete any files tracked in the current branch but not present in the checked-out branch./
-        File[] afterChange = CWD.listFiles(file -> !file.isHidden() && file.isFile());
-        if (afterChange != null) {
-            for (File file : afterChange) {
-                if (!isTracked(branchName, file.getName())) {
-                    restrictedDelete(file.getName());
-                }
-            }
-        }
+        removeUntracked(branchName);
         // Clear the staging area.
         cleanStage();
     }
@@ -385,5 +392,127 @@ public class Repository {
         Utils.writeContents(newbranchFile, headcommit.getName());
     }
 
+    public static void rmBranch(String branchName) throws IOException {
+        File branch = new File(GITLET_HEAD_DIR, branchName);
+        // Failure cases.
+        if(!branch.exists()) {
+            System.out.println("A branch with that name does not exist.");
+            System.exit(0);
+        }
+        if (branchName.equals(headBranchName())) {
+            System.out.println("Cannot remove the current branch.");
+            System.exit(0);
+        }
+        Files.delete(branch.toPath());
+    }
+
+    public static void reset(String commitId) throws IOException {
+        // Failure cases.
+        File commitFile = new File(GITLET_COMMITS_DIR, commitId);
+        if (!commitFile.exists()) {
+            System.out.println("No commit with that id exists.");
+            System.exit(0);
+        }
+
+        Commit commit = readFromfile(commitId);
+
+        Set<String> keySet = commit.getFileset().keySet();
+        for (String fileName : keySet) {
+            checkout(commit, fileName);
+        }
+        // Move the current branch's head to that commit node.
+        File headBranch = new File(GITLET_HEAD_DIR, headBranchName());
+        Utils.writeContents(headBranch, commitId);
+
+        removeUntracked(headBranchName());
+        // Clean the staging area.
+        cleanStage();
+    }
+
+    public static void merge(String branchName) throws IOException {
+         /*  Merge files from the given branch into the current branch.*/
+        // Find the split point.
+        Stack<Commit> headStack = commitStack(headCommit());
+        Stack<Commit> branchStack = commitStack(branchCommit(branchName));
+
+        Commit splitPoint = new Commit();
+        for (Commit commit : headStack) {
+            if (branchStack.contains(commit)) {
+                splitPoint = commit;
+            }
+        }
+        // If the split point is the same commit as the given branch.
+        if (splitPoint.getName().equals(branchCommit(branchName).getName())) {
+            System.out.println("Given branch is an ancestor of the current branch.");
+            System.exit(0);
+        }
+        // If the split point is the current branch.
+        if (splitPoint.getName().equals(headCommit().getName())) {
+            checkout(branchName);
+            System.out.println("Current branch fast-forwarded.");
+            System.exit(0);
+        }
+        HashMap<String, String> splitSet = splitPoint.getFileset();
+        HashMap<String, String> branchSet = branchCommit(branchName).getFileset();
+        HashMap<String, String> headSet = branchCommit(branchName).getFileset();
+
+        boolean isConflicted = false;
+
+        String message = String.format("Merged %s into %s", branchName, headBranchName());
+        Commit mergeCommit = Commit.cloneCommit(splitPoint, message);
+        // Merge commits differ from other commits: they record as parents both the head of the current branch and the head of the given branch.
+        mergeCommit.setParent(headCommit().getName());
+        mergeCommit.setMother(branchCommit(branchName).getName());
+        HashMap<String, String> mergeSet = mergeCommit.getFileset();
+
+        // Any files that were present at the split point.
+        for (String fileName : splitSet.keySet()) {
+            boolean branchEqualsplit = branchSet.get(fileName).equals(splitSet.get(fileName));
+            boolean headEqualsplit = headSet.get(fileName).equals(splitSet.get(fileName));
+            boolean branchEqualhead = branchSet.get(fileName).equals(headSet.get(branchName));
+            // Any files that have been modified in the given branch since the split point, but not modified in the current branch.
+            if (!branchEqualhead && headEqualsplit) {
+                checkout(branchCommit(branchName), fileName);
+                addTostage(STAGING_FOR_ADDTION, fileName);
+            }
+            // Any files that have been modified in the current branch but not in the given branch since the split point, keeping unchanged.
+            // Any files that have been modified in both the current and the given branch in the same way, keeping unchanged.
+
+            // Any files present at the split point, unmodified in the current branch, and absent in the given branch should be removed.
+            else if (!branchSet.containsKey(fileName) && headEqualsplit) {
+                rm(fileName);
+            }
+            // Any files modified in different ways in the current and given branches are in conflict.
+            else if (!headEqualsplit && !branchEqualsplit && !branchEqualhead) {
+                // The contents of both are changed and different from other.
+                isConflicted = true;
+                if (branchSet.containsKey(fileName) && headSet.containsKey(fileName)) {
+                    StringBuilder content = new StringBuilder();
+                    content.append("<<<<<<< HEAD\n");
+                    File headFile = new File(GITLET_BLOBS_DIR, headSet.get(fileName));
+                    String headFilecontent = Utils.readContentsAsString(headFile);
+                    File branchFile = new File(GITLET_BLOBS_DIR, branchSet.get(fileName));
+                    String branchFilecontent = Utils.readContentsAsString(branchFile);
+                    content.append(headFilecontent);
+                    content.append("=======\n");
+                    content.append(branchFilecontent);
+                    content.append(">>>>>>>\n");
+
+                    File newBlob = new File(GITLET_BLOBS_DIR, Utils.sha1(content.toString()));
+                    newBlob.createNewFile();
+
+                    // Update the file.
+                    headSet.put(fileName, newBlob.getName());
+                }
+            }
+        }
+        // Any files were not present at the split point and are present only in the given branch should be checked out and staged.
+        for (String fileName : branchSet.keySet()) {
+            if (!splitSet.containsKey(fileName) && !headSet.containsKey(fileName)) {
+                checkout(branchCommit(branchName), fileName);
+                addTostage(STAGING_FOR_ADDTION, fileName);
+            }
+        }
+    }
 
 }

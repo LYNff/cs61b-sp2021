@@ -89,6 +89,15 @@ public class Main {
                     break;
                 case "rm-branch":
                     validateNumArgs("rm-branch", args, 2);
+                    Repository.rmBranch(args[1]);
+                    break;
+                case "reset":
+                    validateNumArgs("reset", args, 2);
+                    Repository.reset(args[1]);
+                    break;
+                case "merge":
+                    validateNumArgs("merge", args, 2);
+                    Repository.merge(args[1]);
                     break;
             }
         } catch (IOException e) {

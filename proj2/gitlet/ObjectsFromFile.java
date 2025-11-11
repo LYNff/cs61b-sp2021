@@ -29,8 +29,8 @@ public class ObjectsFromFile {
         return readFromfile(sha1);
     }
 
-    public static Stack<Commit> commitStack() {
-        Commit head = headCommit();
+    public static Stack<Commit> commitStack(Commit commit) {
+        Commit head = commit;
         Stack<Commit> list = new Stack<>();
         while (head.getParent() != null) {
             // This add is addLast.
@@ -58,6 +58,11 @@ public class ObjectsFromFile {
         SortedSet<String> branchNames = fileSort(GITLET_HEAD_DIR);
         branchNames.remove(headBranchName());
         return branchNames;
+    }
+
+    public static Commit branchCommit(String branchName) {
+        File branch = new File(GITLET_HEAD_DIR, branchName);
+        return readFromfile(Utils.readContentsAsString(branch));
     }
 
     public static SortedSet<String> stagingAreas(File file) {
@@ -114,6 +119,18 @@ public class ObjectsFromFile {
         String headBranch = Utils.readContentsAsString(branch);
         Commit commit = readFromfile(headBranch);
         return containsInstage(STAGING_FOR_ADDTION, fileName) ||  commitContains(commit, fileName);
+    }
+
+    // Delete the files in the working directory that aren't tracked by the branch.
+    public static void removeUntracked(String branchName) {
+        File[] afterChange = CWD.listFiles(file -> !file.isHidden() && file.isFile());
+        if (afterChange != null) {
+            for (File file : afterChange) {
+                if (!isTracked(branchName, file.getName())) {
+                    Utils.restrictedDelete(file.getName());
+                }
+            }
+        }
     }
 
     // Verify is the file in the working directory which is tracked changed.
@@ -175,14 +192,13 @@ public class ObjectsFromFile {
             }
         }
     }
-
-    public static void addToremoval(String fileName) throws IOException {
-        File remove = new File(STAGING_FOR_REMOVAL, fileName);
-        if (!remove.exists()) {
-            remove.createNewFile();
+    public static void addTostage(File file, String fileName) throws IOException {
+        File added = new File(file, fileName);
+        if (!added.exists()) {
+            added.createNewFile();
         }
         HashMap<String, String> fileSet = headCommit().getFileset();
         String blob = fileSet.get(fileName);
-        Utils.writeContents(remove, blob);
+        Utils.writeContents(added, blob);
     }
 }
