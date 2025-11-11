@@ -446,6 +446,15 @@ public class Repository {
             System.out.println("No changes added to the commit.");
             System.exit(0);
         }
+        File[] files = CWD.listFiles(file -> !file.isHidden() && file.isFile());
+        if (files != null) {
+            for (File file : files) {
+                if (!isTracked(headBranchName(), file.getName())) {
+                    System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                    System.exit(0);
+                }
+            }
+        }
 
         // Find the split point.
         Stack<Commit> headStack = commitStack(headCommit());
@@ -477,58 +486,58 @@ public class Repository {
         boolean isConflicted = false;
 
         // Any files that were present at the split point.
-        for (String fileName : splitSet.keySet()) {
-            boolean branchEqualsplit = branchSet.get(fileName).equals(splitSet.get(fileName));
-            boolean headEqualsplit = headSet.get(fileName).equals(splitSet.get(fileName));
-            boolean branchEqualhead = branchSet.get(fileName).equals(headSet.get(branchName));
-            // Any files that have been modified in the given branch since the split point, but not modified in the current branch.
-            if (!branchEqualhead && headEqualsplit) {
-                checkout(branchCommit(branchName), fileName);
-                addTostage(STAGING_FOR_ADDTION, fileName);
-            }
-            // Any files that have been modified in the current branch but not in the given branch since the split point, keeping unchanged.
-            // Any files that have been modified in both the current and the given branch in the same way, keeping unchanged.
+        if (files != null) {
+            for (File file : files) {
+                String fileName = file.getName();
 
-            // Any files present at the split point, unmodified in the current branch, and absent in the given branch should be removed.
-            else if (!branchSet.containsKey(fileName) && headEqualsplit) {
-                rm(fileName);
-            }
-            // Any files modified in different ways in the current and given branches are in conflict.
-            else if (!headEqualsplit && !branchEqualsplit && !branchEqualhead) {
-                isConflicted = true;
-                StringBuilder content = new StringBuilder();
-                content.append("<<<<<<< HEAD\n");
-                File headFile = new File(GITLET_BLOBS_DIR, headSet.get(fileName));
-                String headFilecontent = Utils.readContentsAsString(headFile);
-                File branchFile = new File(GITLET_BLOBS_DIR, branchSet.get(fileName));
-                String branchFilecontent = Utils.readContentsAsString(branchFile);
-                content.append(headFilecontent);
-                content.append("=======\n");
-                content.append(branchFilecontent);
-                content.append(">>>>>>>\n");
+                boolean branchEqualsplit = branchSet.get(fileName).equals(splitSet.get(fileName));
+                boolean headEqualsplit = headSet.get(fileName).equals(splitSet.get(fileName));
+                boolean branchEqualhead = branchSet.get(fileName).equals(headSet.get(branchName));
 
-                File newBlob = new File(GITLET_BLOBS_DIR, Utils.sha1(content.toString()));
-                newBlob.createNewFile();
+                // Any files that have been modified in the given branch since the split point, but not modified in the current branch.
+                if (!branchEqualhead && headEqualsplit) {
+                    checkout(branchCommit(branchName), fileName);
+                    addTostage(STAGING_FOR_ADDTION, fileName);
+                }
+                // Any files that have been modified in the current branch but not in the given branch since the split point, keeping unchanged.
+                // Any files that have been modified in both the current and the given branch in the same way, keeping unchanged.
 
-                // Update the file.
-                headSet.put(fileName, newBlob.getName());
+                // Any files present at the split point, unmodified in the current branch, and absent in the given branch should be removed.
+                else if (!branchSet.containsKey(fileName) && headEqualsplit) {
+                    rm(fileName);
+                }
+                // Any files modified in different ways in the current and given branches are in conflict.
+                else if (!headEqualsplit && !branchEqualsplit && !branchEqualhead) {
+                    // The contents of both are changed and different from others.
+                    if (headSet.containsKey(fileName) &&  branchSet.containsKey(fileName)) {
+                        isConflicted = true;
+                        StringBuilder content = new StringBuilder();
+                        content.append("<<<<<<< HEAD\n");
+                        File headFile = new File(GITLET_BLOBS_DIR, headSet.get(fileName));
+                        String headFilecontent = Utils.readContentsAsString(headFile);
+                        File branchFile = new File(GITLET_BLOBS_DIR, branchSet.get(fileName));
+                        String branchFilecontent = Utils.readContentsAsString(branchFile);
+                        content.append(headFilecontent);
+                        content.append("=======\n");
+                        content.append(branchFilecontent);
+                        content.append(">>>>>>>\n");
+
+                        File newBlob = new File(GITLET_BLOBS_DIR, Utils.sha1(content.toString()));
+                        newBlob.createNewFile();
+
+                        // Update the file.
+                        addTostage(STAGING_FOR_REMOVAL, fileName);
+                    }
+                }
             }
         }
-        // Any files were not present at the split point and are present only in the given branch should be checked out and staged.
-        for (String fileName : branchSet.keySet()) {
-            if (!splitSet.containsKey(fileName) && !headSet.containsKey(fileName)) {
-                checkout(branchCommit(branchName), fileName);
-                addTostage(STAGING_FOR_ADDTION, fileName);
-            }
-        }
-
         // If the merge encounter a conflict.
         if (isConflicted) {
             System.out.println("Encountered a merge conflict.");
         }
 
         String message = String.format("Merged %s into %s", branchName, headBranchName());
-        Commit mergeCommit = Commit.cloneCommit(splitPoint, message);
+        Commit mergeCommit = Commit.cloneCommit(headCommit(), message);
         // Merge commits differ from other commits: they record as parents both the head of the current branch and the head of the given branch.
         mergeCommit.setParent(headCommit().getName());
         mergeCommit.setMother(branchCommit(branchName).getName());
@@ -542,5 +551,4 @@ public class Repository {
         File currentBranch = new File(GITLET_HEAD_DIR, headBranchName());
         Utils.writeContents(currentBranch, mergeCommit.getName());
     }
-
 }
