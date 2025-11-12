@@ -293,7 +293,7 @@ public class Repository {
         File[] files = GITLET_COMMITS_DIR.listFiles(file -> !file.isHidden() && file.isFile());
         boolean hasCommit = false;
         for (File file : files) {
-            Commit commit = readFromfile(Utils.readContentsAsString(file));
+            Commit commit = readFromfile(file.getName());
             if (commit.getMessage().equals(message)) {
                 hasCommit = true;
                 System.out.println(commit.getName());
