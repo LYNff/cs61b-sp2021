@@ -120,16 +120,28 @@ public class Repository {
             blobarea.mkdir();
         }
 
+        // The removal stage.
+        File removestage = new File(STAGING_FOR_REMOVAL, f.getName());
+        
         // Failure cases
-        if (!f.exists()) {
+        if (!f.exists() || !removestage.exists()) {
             System.out.println("File does not exist.");
+            System.exit(0);
+        }
+
+        // The file will no longer be staged for removal.
+        if (!f.exists() && removestage.exists()) {
+            String blob = Utils.readContentsAsString(removestage);
+            File blobFile = new File(GITLET_BLOBS_DIR, blob);
+            String contents = Utils.readContentsAsString(blobFile);
+
+            File newFile = new File(CWD, f.getName());
+            Utils.writeContents(newFile, contents);
             System.exit(0);
         }
         // Step2
         // Use HEAD pointer.
-        File c = getHeadcommitFile();
-        Commit head = ObjectsFromFile.readFromfile(Utils.readContentsAsString(c));
-        HashMap<String, String> fileSet = head.getFileset();
+        HashMap<String, String> fileSet = headCommit().getFileset();
 
         // Create a file by the name of the f to add.
         File addStage = new File(STAGING_FOR_ADDTION, f.getName());
@@ -161,22 +173,18 @@ public class Repository {
         blobToadd.createNewFile();
         Utils.writeContents(blobToadd, text);
 
-        // If in the removal area, remove it from the area.
-        File removestage = new File(STAGING_FOR_REMOVAL, f.getName());
-        if (removestage.exists()) {
-            Files.delete(removestage.toPath());
-        }
+
     }
 
 
     public static void commit(String message) throws IOException {
-        /**
-         * TODO: Clone the snapshot from its parent(e.g. head commit)./
-         * TODO: Update the contents of files it is tracking that have been staged for addition./
-         * TODO: Save and start tracking any files that were staged for addition but weren't tracked by its parent./
-         * TODO: Change the head pointer points to the new commit./
-         * TODO: Clear the staging area after a commit./
-         * TODO: If no files have been staged./
+        /*
+          TODO: Clone the snapshot from its parent(e.g. head commit)./
+          TODO: Update the contents of files it is tracking that have been staged for addition./
+          TODO: Save and start tracking any files that were staged for addition but weren't tracked by its parent./
+          TODO: Change the head pointer points to the new commit./
+          TODO: Clear the staging area after a commit./
+          TODO: If no files have been staged./
          */
         // Read from my computer the head commit object and the staging area.
         File addStage = new File(STAGING_FOR_ADDTION.toString());
@@ -186,6 +194,11 @@ public class Repository {
         // Failure case
         if (files != null && files.length == 0 && filesToremove != null && filesToremove.length == 0) {
             System.out.println("No changes added to the commit.");
+            System.exit(0);
+        }
+        // Every commit must have a non-blank message.
+        if (Objects.equals(message, "")) {
+            System.out.println("Please enter a commit message.");
             System.exit(0);
         }
         // Clone the head commit.
