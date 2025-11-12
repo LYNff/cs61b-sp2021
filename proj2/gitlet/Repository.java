@@ -135,6 +135,8 @@ public class Repository {
             File blobFile = new File(GITLET_BLOBS_DIR, blob);
             String contents = Utils.readContentsAsString(blobFile);
 
+            Files.delete(removestage.toPath());
+
             File newFile = new File(CWD, f.getName());
             Utils.writeContents(newFile, contents);
             System.exit(0);
