@@ -3,7 +3,6 @@ package gitlet;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static gitlet.GitletConstants.*;
@@ -211,9 +210,7 @@ public class Repository {
         // If the file is currently staged for addition.
         if (containsInstage(STAGING_FOR_ADDTION, fileName)) {
             removeFromstage(STAGING_FOR_ADDTION, fileName);
-        }
-        // If the file is tracked in the current commit.
-        else if (commitContains(headCommit(), fileName)) {
+        } else if (commitContains(headCommit(), fileName)) {
             // Stage it for removal and remove the file from the working directory.
             File removal = new File(GITLET_STAGING_AREA_DIR, "removal");
             if (!removal.exists()) {
@@ -224,9 +221,7 @@ public class Repository {
             if (filetoremove.exists()) {
                 restrictedDelete(fileName);
             }
-        }
-        // Failure cases
-        else {
+        } else {
             System.out.println("No reason to remove the file.");
             System.exit(0);
         }
@@ -318,7 +313,7 @@ public class Repository {
         Utils.writeContents(addTowork, text);
 
         // The new version of the file is not staged.
-        if(containsInstage(STAGING_FOR_ADDTION, fileName)) {
+        if (containsInstage(STAGING_FOR_ADDTION, fileName)) {
             removeFromstage(STAGING_FOR_ADDTION, fileName);
         }
         if (containsInstage(STAGING_FOR_REMOVAL, fileName)) {
@@ -376,7 +371,7 @@ public class Repository {
     public static void rmBranch(String branchName) throws IOException {
         File branch = new File(GITLET_HEAD_DIR, branchName);
         // Failure cases.
-        if(!branch.exists()) {
+        if (!branch.exists()) {
             System.out.println("A branch with that name does not exist.");
             System.exit(0);
         }
@@ -411,8 +406,6 @@ public class Repository {
     }
 
     public static void merge(String branchName) throws IOException {
-         /*  Merge files from the given branch into the current branch.*/
-        // Failure cases.
         if (!stagingAreas(STAGING_FOR_ADDTION).isEmpty() || !stagingAreas(STAGING_FOR_REMOVAL).isEmpty()) {
             System.out.println("You have uncommitted changes.");
             System.exit(0);

@@ -98,7 +98,7 @@ public class ObjectsFromFile {
     }
 
     // Verify if the name exists in the staging area for addition.
-    public static boolean containsInstage(File stage,String fileName) {
+    public static boolean containsInstage(File stage, String fileName) {
         File addStage = new File(stage, fileName);
         return addStage.exists();
     }
@@ -157,6 +157,7 @@ public class ObjectsFromFile {
                     boolean case1 = isfileChanged(blobCommit(headCommit(), f.getName()), f.getName()) && !containsInstage(STAGING_FOR_ADDTION, f.getName());
                     // Staged for addition, but with different contents than in the working directory.
                     boolean case2 = containsInstage(STAGING_FOR_ADDTION, f.getName()) && isfileChanged(blobStage(f.getName()), f.getName());
+
                     if (case1 || case2) {
                         String s = f.getName() + " (modified)";
                         notStaged.add(s);
