@@ -180,13 +180,11 @@ public class Repository {
         HashMap<String, String> fileSet = newCommit.getFileset();
 
         // Use the staging area in order to modify the file tracked by the new commit.
-        if (files != null) {
-            for (File file : files) {
-                // Put the file in the stage area into Commit.
-                fileSet.put(file.getName(), Utils.readContentsAsString(file));
-                // Delete the file after commit.
-                Files.delete(file.toPath());
-            }
+        for (File file : files) {
+            // Put the file in the stage area into Commit.
+            fileSet.put(file.getName(), Utils.readContentsAsString(file));
+            // Delete the file after commit.
+            Files.delete(file.toPath());
         }
         // Untrack the file in the removal stage.
         if (filesToremove != null) {

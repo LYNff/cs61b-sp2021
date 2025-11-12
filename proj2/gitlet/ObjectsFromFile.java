@@ -12,6 +12,9 @@ public class ObjectsFromFile {
     public static Commit readFromfile(String sha1) {
         Commit commit;
         File f = new File(GITLET_COMMITS_DIR, sha1);
+        if (!f.exists()) {
+            return null;
+        }
 
         commit = Utils.readObject(f, Commit.class);
         return commit;
