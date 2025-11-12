@@ -10,24 +10,19 @@ import static gitlet.GitletConstants.*;
 import static gitlet.ObjectsFromFile.*;
 import static gitlet.Utils.*;
 
-// TODO: any imports you need here
 
 /** Represents a gitlet repository.
- *  TODO: It's a good idea to give a description here of what else this Class
  *  does at a high level.
  *
- *  @author TODO
  */
 public class Repository {
-    /**
-     * TODO: add instance variables here.
+    /*
      *
      * List all instance variables of the Repository class here with a useful
      * comment above them describing what that variable represents and how that
      * variable is used. We've provided two examples for you.
      */
 
-    /* TODO: fill in the rest of this class. */
 
     /** Create the .gitlet dictionary.
      * @throws IOException
@@ -44,21 +39,15 @@ public class Repository {
         }
     }
 
-    /* TODO: Distinguish somehow between hashes for commits and hashes for blobs. */
 
     public static void makeInit() throws IOException {
-        /**
-         *  TODO: Create a new Gitlet version-control system in the current directory./
-         *  TODO: Start with a commit that contains no files and has the commit message./
-         *  TODO: Create a single branch(master) points to the commit./
-         *  TODO: something if there is already a system in the current directory./
-         *
-         *  .gitlet
-         *      - commits/
-         *      - blobs/
-         *      - refs/
-         *      - index/ ------ staging area
-         *      - HEAD
+        /*
+           .gitlet
+               - commits/
+               - blobs/
+               - refs/
+               - index/ ------ staging area
+               - HEAD
          */
 
         // Step1
@@ -72,7 +61,6 @@ public class Repository {
 
         // Step2
         Commit commit = new Commit();
-        // TODO: how to use the object of the commit to create a sha-1 to represent this commit.
         String sha1 = Utils.sha1(serialize(commit));
         commit.setName(sha1);
         // Use sha-1 to represent the commit and save it in the commits directory.
@@ -97,29 +85,20 @@ public class Repository {
         // Create the staging area for this system.
         File index = new File(GITLET_DIR, "index");
         index.mkdir();
+
+        // Create the add stage.
+        File addtion = new File(GITLET_STAGING_AREA_DIR, "additions");
+        addtion.mkdir();
+        // Create the removal stage.
+        File removal = new File(GITLET_STAGING_AREA_DIR, "removal");
+        removal.mkdir();
+       
+        // Create the blob stage.
+        File blobarea = new File(GITLET_DIR, "blobs");
+        blobarea.mkdir();
     }
 
     public static void add(File f) throws IOException {
-        /**
-         *  TODO: Create a staging area for addition directory./
-         *  TODO: Verify if the file is identical to the file in the current commit./
-         *  TODO: remove the file from the staging area if exits while identical./
-         *  TODO: If not add it to the staging area./
-         *  TODO: If the file in the removal area, change it from removal to addition./
-         *  TODO: something If the file does not exist./
-         *
-         */
-
-        // Step1
-        File addtion = new File(GITLET_STAGING_AREA_DIR, "addition");
-        if (!addtion.exists()) {
-            addtion.mkdir();
-        }
-        File blobarea = new File(GITLET_DIR, "blobs");
-        if (!blobarea.exists()) {
-            blobarea.mkdir();
-        }
-
         // The removal stage.
         File removestage = new File(STAGING_FOR_REMOVAL, f.getName());
         
@@ -178,23 +157,14 @@ public class Repository {
 
     }
 
-
     public static void commit(String message) throws IOException {
-        /*
-          TODO: Clone the snapshot from its parent(e.g. head commit)./
-          TODO: Update the contents of files it is tracking that have been staged for addition./
-          TODO: Save and start tracking any files that were staged for addition but weren't tracked by its parent./
-          TODO: Change the head pointer points to the new commit./
-          TODO: Clear the staging area after a commit./
-          TODO: If no files have been staged./
-         */
         // Read from my computer the head commit object and the staging area.
         File addStage = new File(STAGING_FOR_ADDTION.toString());
         File removeStage = new File(STAGING_FOR_REMOVAL.toString());
         File[] files = addStage.listFiles(file -> !file.isHidden() && file.isFile());
         File[] filesToremove = removeStage.listFiles(file -> !file.isHidden() && file.isFile());
         // Failure case
-        if (files != null && files.length == 0 && filesToremove != null && filesToremove.length == 0) {
+        if (files.length == 0 && filesToremove.length == 0) {
             System.out.println("No changes added to the commit.");
             System.exit(0);
         }
@@ -265,11 +235,6 @@ public class Repository {
     }
 
     public static void log() {
-        /**
-         *  TODO: Display information about each commit backwards along the commit tree until the initial commit./
-         *  TODO: Follow the first parent commit links./
-         *  TODO: Ignore any second parents found in merge commits./
-         */
         Stack<Commit> stack = commitStack(headCommit());
         StringBuilder texts = new StringBuilder();
         for (Commit commit : stack) {
@@ -392,7 +357,7 @@ public class Repository {
 
         File head = new File(GITLET_DIR, "HEAD");
         Utils.writeContents(head, branchName);
-        // TODO: Delete any files tracked in the current branch but not present in the checked-out branch./
+
         removeUntracked(branchName);
         // Clear the staging area.
         cleanStage();
