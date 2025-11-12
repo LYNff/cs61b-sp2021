@@ -222,6 +222,8 @@ public class Repository {
         if (filesToremove != null) {
             for (File file : filesToremove) {
                 fileSet.remove(file.getName());
+                // Delete the file in removal stage after commit.
+                Files.delete(file.toPath());
             }
         }
         // Save the new commit node to the commit tree.
@@ -281,7 +283,7 @@ public class Repository {
         StringBuilder texts = new StringBuilder();
         // Because of the init commit, the files won't be null.
         for (File file : files) {
-            Commit commit = readFromfile(Utils.readContentsAsString(file));
+            Commit commit = readFromfile(file.getName());
             texts.append(Commit.contentsForlog(commit));
         }
         System.out.print(texts);
