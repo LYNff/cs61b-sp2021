@@ -87,12 +87,12 @@ public class Repository {
         index.mkdir();
 
         // Create the add stage.
-        File addtion = new File(GITLET_STAGING_AREA_DIR, "additions");
+        File addtion = new File(GITLET_STAGING_AREA_DIR, "addition");
         addtion.mkdir();
         // Create the removal stage.
         File removal = new File(GITLET_STAGING_AREA_DIR, "removal");
         removal.mkdir();
-       
+
         // Create the blob stage.
         File blobarea = new File(GITLET_DIR, "blobs");
         blobarea.mkdir();
