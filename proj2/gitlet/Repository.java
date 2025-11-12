@@ -242,7 +242,7 @@ public class Repository {
     public static void rm(String fileName) throws IOException {
         // If the file is currently staged for addition.
         if (containsInstage(STAGING_FOR_ADDTION, fileName)) {
-            removeFromaddstage(fileName);
+            removeFromstage(STAGING_FOR_ADDTION, fileName);
         }
         // If the file is tracked in the current commit.
         else if (commitContains(headCommit(), fileName)) {
@@ -356,7 +356,10 @@ public class Repository {
 
         // The new version of the file is not staged.
         if(containsInstage(STAGING_FOR_ADDTION, fileName)) {
-            removeFromaddstage(fileName);
+            removeFromstage(STAGING_FOR_ADDTION, fileName);
+        }
+        if (containsInstage(STAGING_FOR_REMOVAL, fileName)) {
+            removeFromstage(STAGING_FOR_REMOVAL, fileName);
         }
     }
     public static void checkout(String branchName) throws IOException {

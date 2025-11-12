@@ -100,9 +100,9 @@ public class ObjectsFromFile {
         return addStage.exists();
     }
 
-    public static void removeFromaddstage(String fileName) throws IOException {
-        if (containsInstage(STAGING_FOR_ADDTION, fileName)) {
-            File addStage = new File(STAGING_FOR_ADDTION, fileName);
+    public static void removeFromstage(File file, String fileName) throws IOException {
+        if (containsInstage(file, fileName)) {
+            File addStage = new File(file, fileName);
             Files.delete(addStage.toPath());
         }
     }
