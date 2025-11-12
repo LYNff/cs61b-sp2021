@@ -124,7 +124,7 @@ public class Repository {
         File removestage = new File(STAGING_FOR_REMOVAL, f.getName());
         
         // Failure cases
-        if (!f.exists() || !removestage.exists()) {
+        if (!f.exists() && !removestage.exists()) {
             System.out.println("File does not exist.");
             System.exit(0);
         }
