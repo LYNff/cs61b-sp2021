@@ -11,8 +11,7 @@ public class ObjectsFromFile {
     // Read commit information from the commit file with the sha1.
     public static Commit readFromfile(String sha1) {
         Commit commit;
-        // If the sha1 is a short commit id.
-
+        // TODO: if the sha1 is a short ID.
         File f = new File(GITLET_COMMITS_DIR, sha1);
         if (!f.exists()) {
             return null;
