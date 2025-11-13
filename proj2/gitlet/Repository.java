@@ -469,7 +469,7 @@ public class Repository {
                 boolean branchEqualhead = fileEquals(branchCommit(branchName), headCommit(), fileName);
 
                 // Any files that have been modified in the given branch since the split point, but not modified in the current branch.
-                if (!branchEqualhead && headEqualsplit) {
+                if (!branchEqualsplit && headEqualsplit) {
                     checkout(branchCommit(branchName), fileName);
                     addTostage(STAGING_FOR_ADDTION, fileName);
                 }
