@@ -152,8 +152,6 @@ public class Repository {
         File blobToadd = new File(GITLET_BLOBS_DIR, blob2);
         blobToadd.createNewFile();
         Utils.writeContents(blobToadd, text);
-
-
     }
 
     public static void commit(String message) throws IOException {

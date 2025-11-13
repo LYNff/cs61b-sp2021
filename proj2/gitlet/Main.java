@@ -81,6 +81,10 @@ public class Main {
                     } else if (args.length == 3) {
                         Repository.checkout(headCommit(), args[2]);
                     } else if (args.length == 4) {
+                        if (!args[2].equals("--")) {
+                            System.out.println("Incorrect operands");
+                            System.exit(0);
+                        }
                         Commit commit = readFromfile(args[1]);
                         if (commit == null) {
                             System.out.println("No commit with that id exists.");
