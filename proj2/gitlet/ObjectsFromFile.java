@@ -216,7 +216,9 @@ public class ObjectsFromFile {
         String blob1 = fileSet1.get(fileName);
         String blob2 = fileSet2.get(fileName);
 
-        if (blob1 == null || blob2 == null) {
+        if (blob1 == null && blob2 == null) {
+            return true;
+        } else if (blob1 == null || blob2 == null) {
             return false;
         } else {
             return blob1.equals(blob2);
