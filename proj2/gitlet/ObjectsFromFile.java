@@ -198,7 +198,8 @@ public class ObjectsFromFile {
             }
         }
     }
-    public static void addTostage(File file, String fileName) throws IOException {
+    // Add the file tracked in the current commit into the removal stage.
+    public static void addToremoval(File file, String fileName) throws IOException {
         File added = new File(file, fileName);
         if (!added.exists()) {
             added.createNewFile();

@@ -214,7 +214,7 @@ public class Repository {
             if (!removal.exists()) {
                 removal.mkdir();
             }
-            addTostage(STAGING_FOR_REMOVAL, fileName);
+            addToremoval(STAGING_FOR_REMOVAL, fileName);
             File filetoremove = new File(CWD, fileName);
             if (filetoremove.exists()) {
                 restrictedDelete(fileName);
@@ -476,7 +476,8 @@ public class Repository {
                     rm(fileName);
                 } else {
                     checkout(branchCommit(branchName), fileName);
-                    addTostage(STAGING_FOR_ADDTION, fileName);
+                    File file = new File(CWD, fileName);
+                    add(file);
                 }
             }
             // Any files modified in different ways in the current and given branches are in conflict.
@@ -497,7 +498,8 @@ public class Repository {
                 newBlob.createNewFile();
 
                 // Update the file.
-                addTostage(STAGING_FOR_REMOVAL, fileName);
+                File file = new File(CWD, fileName);
+                add(file);
             }
         }
         // If the merge encounter a conflict.
