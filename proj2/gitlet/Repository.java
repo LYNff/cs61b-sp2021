@@ -464,9 +464,9 @@ public class Repository {
             for (File file : files) {
                 String fileName = file.getName();
 
-                boolean branchEqualsplit = branchSet.get(fileName).equals(splitSet.get(fileName));
-                boolean headEqualsplit = headSet.get(fileName).equals(splitSet.get(fileName));
-                boolean branchEqualhead = branchSet.get(fileName).equals(headSet.get(branchName));
+                boolean branchEqualsplit = fileEquals(branchCommit(branchName), splitPoint, fileName);
+                boolean headEqualsplit = fileEquals(headCommit(), splitPoint, fileName);
+                boolean branchEqualhead = fileEquals(branchCommit(branchName), headCommit(), fileName);
 
                 // Any files that have been modified in the given branch since the split point, but not modified in the current branch.
                 if (!branchEqualhead && headEqualsplit) {

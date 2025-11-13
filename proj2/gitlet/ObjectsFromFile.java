@@ -207,4 +207,19 @@ public class ObjectsFromFile {
         String blob = fileSet.get(fileName);
         Utils.writeContents(added, blob);
     }
+
+    // Compare the value of the fileSet in the commit.
+    public static boolean fileEquals(Commit commit1, Commit commit2, String fileName) {
+        HashMap<String, String> fileSet1 = commit1.getFileset();
+        HashMap<String, String> fileSet2 = commit2.getFileset();
+
+        String blob1 = fileSet1.get(fileName);
+        String blob2 = fileSet2.get(fileName);
+
+        if (blob1 == null || blob2 == null) {
+            return false;
+        } else {
+            return blob1.equals(blob2);
+        }
+    }
 }
