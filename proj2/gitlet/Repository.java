@@ -514,6 +514,15 @@ public class Repository {
         mergeCommit.setMother(branchCommit(branchName).getName());
         mergeCommit.setName(Utils.sha1(serialize(mergeCommit)));
 
+        HashMap<String, String> mergeCommitFiles = mergeCommit.getFileset();
+        File[] filesToadd = STAGING_FOR_ADDTION.listFiles();
+        if (filesToadd != null) {
+            for (File file : filesToadd) {
+                mergeCommitFiles.put(file.getName(), Utils.readContentsAsString(file));
+                Files.delete(file.toPath());
+            }
+        }
+        mergeCommit.setName(Utils.sha1(serialize(mergeCommit)));
         File commitFile = new File(GITLET_COMMITS_DIR, mergeCommit.getName());
         commitFile.createNewFile();
         Utils.writeObject(commitFile, mergeCommit);
