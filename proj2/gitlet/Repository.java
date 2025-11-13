@@ -452,9 +452,9 @@ public class Repository {
             System.out.println("Current branch fast-forwarded.");
             System.exit(0);
         }
-        Set<String> fileSet = splitPoint.getFileset().keySet();
+        Set<String> fileSet = new HashSet<>(splitPoint.getFileset().keySet());
         HashMap<String, String> branchSet = branchCommit(branchName).getFileset();
-        HashMap<String, String> headSet = branchCommit(branchName).getFileset();
+        HashMap<String, String> headSet = headCommit().getFileset();
 
         fileSet.addAll(headSet.keySet());
         fileSet.addAll(branchSet.keySet());
