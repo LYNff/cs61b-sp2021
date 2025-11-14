@@ -519,6 +519,14 @@ public class Repository {
                 Files.delete(file.toPath());
             }
         }
+        File removalStage = new File(STAGING_FOR_REMOVAL.toString());
+        File[] filesToremove = removalStage.listFiles();
+        if (filesToremove != null) {
+            for (File file : filesToremove) {
+                mergeCommitFiles.remove(file.getName());
+                Files.delete(file.toPath());
+            }
+        }
         mergeCommit.setName(Utils.sha1(serialize(mergeCommit)));
         File commitFile = new File(GITLET_COMMITS_DIR, mergeCommit.getName());
         commitFile.createNewFile();
