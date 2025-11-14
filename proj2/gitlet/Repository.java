@@ -199,8 +199,7 @@ public class Repository {
         commitTosave.createNewFile();
         Utils.writeObject(commitTosave, newCommit);
         // Change the head pointer.
-        File headpointer = getHeadcommitFile();
-        Utils.writeContents(headpointer, commitSha1);
+        Utils.writeContents(getHeadcommitFile(), commitSha1);
 
         // Write back any new object made or any modified object read earlier.
     }
@@ -516,8 +515,6 @@ public class Repository {
         if (filesToadd != null) {
             for (File file : filesToadd) {
                 mergeCommitFiles.put(file.getName(), Utils.readContentsAsString(file));
-                // Clear the staging area.
-                Files.delete(file.toPath());
             }
         }
         mergeCommit.setName(Utils.sha1(serialize(mergeCommit)));
@@ -525,8 +522,9 @@ public class Repository {
         commitFile.createNewFile();
         Utils.writeObject(commitFile, mergeCommit);
 
+        // Clean the staging are.
+        cleanStage();
         // Change the head of the current branch, making it point at the merge commit.
-        File currentBranch = new File(GITLET_HEAD_DIR, headBranchName());
-        Utils.writeContents(currentBranch, mergeCommit.getName());
+        Utils.writeContents(getHeadcommitFile(), mergeCommit.getName());
     }
 }
