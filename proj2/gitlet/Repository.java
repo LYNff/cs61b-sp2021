@@ -515,6 +515,21 @@ public class Repository {
         if (filesToadd != null) {
             for (File file : filesToadd) {
                 mergeCommitFiles.put(file.getName(), Utils.readContentsAsString(file));
+                Files.delete(file.toPath());
+                System.out.println("Try deleting: " + file.getAbsolutePath());
+
+                try {
+                    Files.delete(file.toPath());
+                    System.out.println("Files.delete OK");
+                } catch (Exception e) {
+                    System.out.println("Files.delete FAILED");
+                    e.printStackTrace();
+                }
+
+                boolean v = file.delete();
+                System.out.println("file.delete() = " + v);
+                System.out.println("exists after delete = " + file.exists());
+
             }
         }
         mergeCommit.setName(Utils.sha1(serialize(mergeCommit)));
@@ -522,8 +537,6 @@ public class Repository {
         commitFile.createNewFile();
         Utils.writeObject(commitFile, mergeCommit);
 
-        // Clean the staging are.
-        cleanStage();
         // Change the head of the current branch, making it point at the merge commit.
         Utils.writeContents(getHeadcommitFile(), mergeCommit.getName());
     }
