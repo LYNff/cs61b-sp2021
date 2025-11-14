@@ -494,11 +494,9 @@ public class Repository {
                 content.append(branchFilecontent);
                 content.append(">>>>>>>\n");
 
-                File newBlob = new File(GITLET_BLOBS_DIR, Utils.sha1(content.toString()));
-                newBlob.createNewFile();
-
                 // Update the file.
                 File file = new File(CWD, fileName);
+                Utils.writeContents(file, content.toString());
                 add(file);
             }
         }
@@ -512,13 +510,13 @@ public class Repository {
         // Merge commits differ from other commits: they record as parents both the head of the current branch and the head of the given branch.
         mergeCommit.setParent(headCommit().getName());
         mergeCommit.setMother(branchCommit(branchName).getName());
-        mergeCommit.setName(Utils.sha1(serialize(mergeCommit)));
 
         HashMap<String, String> mergeCommitFiles = mergeCommit.getFileset();
         File[] filesToadd = STAGING_FOR_ADDTION.listFiles();
         if (filesToadd != null) {
             for (File file : filesToadd) {
                 mergeCommitFiles.put(file.getName(), Utils.readContentsAsString(file));
+                // Clear the staging area.
                 Files.delete(file.toPath());
             }
         }
