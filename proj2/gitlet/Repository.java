@@ -511,7 +511,8 @@ public class Repository {
         mergeCommit.setMother(branchCommit(branchName).getName());
 
         HashMap<String, String> mergeCommitFiles = mergeCommit.getFileset();
-        File[] filesToadd = STAGING_FOR_ADDTION.listFiles();
+        File addStage = new File(STAGING_FOR_ADDTION.toString());
+        File[] filesToadd = addStage.listFiles();
         if (filesToadd != null) {
             for (File file : filesToadd) {
                 mergeCommitFiles.put(file.getName(), Utils.readContentsAsString(file));
