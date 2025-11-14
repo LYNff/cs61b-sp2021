@@ -517,20 +517,6 @@ public class Repository {
             for (File file : filesToadd) {
                 mergeCommitFiles.put(file.getName(), Utils.readContentsAsString(file));
                 Files.delete(file.toPath());
-                System.out.println("Try deleting: " + file.getAbsolutePath());
-
-                try {
-                    Files.delete(file.toPath());
-                    System.out.println("Files.delete OK");
-                } catch (Exception e) {
-                    System.out.println("Files.delete FAILED");
-                    e.printStackTrace();
-                }
-
-                boolean v = file.delete();
-                System.out.println("file.delete() = " + v);
-                System.out.println("exists after delete = " + file.exists());
-
             }
         }
         mergeCommit.setName(Utils.sha1(serialize(mergeCommit)));
